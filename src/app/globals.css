@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens — see docs/design-direction.md.
+ * Raw palette → semantic roles → Tailwind utilities (via @theme).
+ * Components use semantic utilities only (bg-surface, text-muted…), never raw hex.
+ */
+
+:root {
+  /* Palette */
+  --shale: #121417;
+  --slate: #1e2227;
+  --bone: #e6e1d6;
+  --matrix: #9a9488;
+  --amber: #d9a441;
+
+  /* Semantic roles — dark is the default theme */
+  --bg: var(--shale);
+  --surface: var(--slate);
+  --ink: var(--bone);
+  --muted: var(--matrix);
+  --rule: color-mix(in oklab, var(--bone) 14%, transparent);
+  --accent: var(--amber);
+  --stage-glow: color-mix(in oklab, var(--bone) 7%, transparent);
+
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --bg: #e6e1d6;
+  --surface: #f2efe8;
+  --ink: #121417;
+  --muted: #5c574d;
+  --rule: color-mix(in oklab, #121417 16%, transparent);
+  --accent: #8f6210;
+  --stage-glow: color-mix(in oklab, #ffffff 55%, transparent);
+
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-rule: var(--rule);
+  --color-accent: var(--accent);
+
+  /* International Commission on Stratigraphy period colours (data only) */
+  --color-period-triassic: #812b92;
+  --color-period-jurassic: #34b2c9;
+  --color-period-cretaceous: #7fc64e;
+
+  --font-display: var(--font-newsreader), Georgia, serif;
+  --font-sans: var(--font-plex-sans), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+@layer base {
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Small uppercase mono label — the museum-label voice used for eyebrows and data keys. */
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+}

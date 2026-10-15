@@ -1,0 +1,281 @@
+import { z } from "zod";
+
+/**
+ * Species content model.
+ *
+ * One record = scientific `content` (never read by the viewer)
+ *            + rendering `presentation` (becomes ViewerConfig)
+ *            + editorial `review` state.
+ *
+ * Records are TypeScript files validated at build time; an invalid record fails the build.
+ * See docs/architecture.md §6 and docs/science-requirements.md.
+ */
+
+// ── Shared primitives ────────────────────────────────────────────────────────
+
+const id = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase kebab-case ids");
+
+/** 1 direct fossil evidence · 2 strong inference · 3 plausible reconstruction · 4 artistic interpretation */
+export const evidenceLevelSchema = z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]);
+
+export const claimSchema = z.strictObject({
+  text: z.string().min(1),
+  level: evidenceLevelSchema,
+  citationIds: z.array(id),
+});
+
+export const citationSchema = z.strictObject({
+  id,
+  authors: z.array(z.string().min(1)).min(1),
+  year: z.number().int().min(1800),
+  title: z.string().min(1),
+  venue: z.string().min(1),
+  doi: z.string().optional(),
+  url: z.url(),
+  accessed: z.iso.date(),
+});
+
+const vec3 = z.tuple([z.number(), z.number(), z.number()]);
+
+/** Public URL of a delivered asset, e.g. /models/t-rex/t-rex-high.glb */
+const assetPath = z.string().regex(/^\/[\w\-./]+$/, "Asset paths are absolute public paths");
+
+// ── Scientific content ───────────────────────────────────────────────────────
+
+const estimateSchema = z
+  .strictObject({
+    min: z.number().positive(),
+    max: z.number().positive(),
+    unit: z.enum(["m", "kg", "t"]),
+    method: z.string().min(1),
+    citationId: id,
+  })
+  .refine((e) => e.min <= e.max, { message: "min must be ≤ max", path: ["max"] });
+
+const measurementSchema = z.strictObject({ estimates: z.array(estimateSchema).min(1) });
+
+export const contentSchema = z.strictObject({
+  /** Clade path from broad to narrow, e.g. ["Dinosauria", "Theropoda", "Tyrannosauridae"] */
+  taxonomy: z.array(z.string().min(1)).min(1),
+  period: z.enum(["Triassic", "Jurassic", "Cretaceous"]),
+  age: z
+    .strictObject({
+      /** Older bound in millions of years ago (larger number). */
+      maxMa: z.number().positive(),
+      /** Younger bound in millions of years ago. */
+      minMa: z.number().positive(),
+      stage: z.string().min(1),
+      citationIds: z.array(id).min(1),
+    })
+    .refine((a) => a.maxMa >= a.minMa, {
+      message: "maxMa is the older bound and must be ≥ minMa",
+      path: ["maxMa"],
+    }),
+  localities: z
+    .array(
+      z.strictObject({
+        formation: z.string().min(1),
+        region: z.string().min(1),
+        country: z.string().min(1),
+        citationIds: z.array(id).min(1),
+      }),
+    )
+    .min(1),
+  measurements: z.strictObject({
+    length: measurementSchema.optional(),
+    hipHeight: measurementSchema.optional(),
+    mass: measurementSchema.optional(),
+  }),
+  diet: z.enum(["carnivore", "herbivore", "omnivore"]),
+  dietEvidence: claimSchema,
+  summary: z.string().min(1),
+  facts: z.array(claimSchema).min(3).max(5),
+  known: z.array(claimSchema).min(1),
+  uncertain: z.array(claimSchema).min(1),
+  discovery: z.array(claimSchema).min(1),
+  hotspotNotes: z.array(z.strictObject({ hotspotId: id, title: z.string().min(1), body: claimSchema })),
+  citations: z.array(citationSchema).min(1),
+});
+
+// ── Presentation (rendering configuration) ───────────────────────────────────
+
+export const presentationModeSchema = z.enum(["studio", "habitat", "anatomy", "fossil"]);
+
+const cameraViewSchema = z.strictObject({ position: vec3, target: vec3 });
+
+const attributionSchema = z.strictObject({
+  creator: z.string().min(1),
+  creatorUrl: z.url(),
+  title: z.string().min(1),
+  sourceUrl: z.url(),
+  license: z.enum(["CC0-1.0", "CC-BY-4.0", "CC-BY-NC-4.0"]),
+  licenseUrl: z.url(),
+  /** What we changed, e.g. "Converted spec-gloss to metal-rough". Required by CC BY. */
+  modifications: z.array(z.string().min(1)),
+});
+
+export const presentationSchema = z.strictObject({
+  model: z.strictObject({
+    high: assetPath,
+    mobile: assetPath,
+    poster: assetPath,
+  }),
+  attribution: attributionSchema,
+  /** Which visual features match evidence and which are interpretation. */
+  appearanceNotes: z.array(claimSchema).min(1),
+  camera: z.strictObject({
+    default: cameraViewSchema,
+    presets: z.array(cameraViewSchema.extend({ id, label: z.string().min(1) })),
+    limits: z
+      .strictObject({
+        minDistance: z.number().positive(),
+        maxDistance: z.number().positive(),
+        /** Radians from straight up; keeps the camera above the ground. */
+        maxPolarAngle: z.number().positive().max(Math.PI),
+      })
+      .refine((l) => l.minDistance < l.maxDistance, {
+        message: "minDistance must be < maxDistance",
+        path: ["maxDistance"],
+      }),
+  }),
+  modes: z.array(presentationModeSchema).min(1),
+  hotspots: z.array(z.strictObject({ id, position: vec3 })),
+  habitatId: id.optional(),
+  fossil: z
+    .strictObject({
+      src: assetPath,
+      label: z.string().min(1),
+      /** True when the scan is of a cast, not original bone — must be shown to visitors. */
+      isCast: z.boolean(),
+      attribution: attributionSchema,
+    })
+    .optional(),
+  a11y: z.strictObject({ modelDescription: z.string().min(1) }),
+});
+
+// ── Species record ───────────────────────────────────────────────────────────
+
+export const reviewStatusSchema = z.enum(["draft", "reviewed", "published"]);
+
+export const speciesSchema = z
+  .strictObject({
+    id,
+    slug: id,
+    scientificName: z.string().min(1),
+    authority: z.string().min(1),
+    commonNames: z.array(z.string().min(1)),
+    synonyms: z.array(z.string().min(1)),
+    /** Optional while drafting; required once reviewed. */
+    content: contentSchema.optional(),
+    presentation: presentationSchema,
+    review: z.strictObject({
+      status: reviewStatusSchema,
+      reviewedOn: z.iso.date().optional(),
+    }),
+  })
+  .superRefine((s, ctx) => {
+    const issue = (message: string, path: (string | number)[]) =>
+      ctx.addIssue({ code: "custom", message, path });
+
+    const { presentation: p, content: c, review } = s;
+
+    // Modes must have what they need to render.
+    if (!p.modes.includes("studio")) issue("Every species supports studio mode", ["presentation", "modes"]);
+    if (p.modes.includes("fossil") && !p.fossil)
+      issue("fossil mode requires presentation.fossil", ["presentation", "fossil"]);
+    if (p.modes.includes("habitat") && !p.habitatId)
+      issue("habitat mode requires presentation.habitatId", ["presentation", "habitatId"]);
+    if (p.modes.includes("anatomy") && p.hotspots.length === 0)
+      issue("anatomy mode requires hotspots", ["presentation", "hotspots"]);
+
+    findDuplicates(p.hotspots.map((h) => h.id)).forEach((d) =>
+      issue(`Duplicate hotspot id "${d}"`, ["presentation", "hotspots"]),
+    );
+    findDuplicates(p.camera.presets.map((v) => v.id)).forEach((d) =>
+      issue(`Duplicate camera preset id "${d}"`, ["presentation", "camera", "presets"]),
+    );
+
+    // Review gates.
+    if (review.status !== "draft") {
+      if (!c) issue(`A ${review.status} record needs content`, ["content"]);
+      if (!review.reviewedOn) issue(`A ${review.status} record needs reviewedOn`, ["review", "reviewedOn"]);
+    }
+
+    if (!c) return;
+
+    // Citation integrity: every referenced id must exist.
+    findDuplicates(c.citations.map((x) => x.id)).forEach((d) =>
+      issue(`Duplicate citation id "${d}"`, ["content", "citations"]),
+    );
+    const known = new Set(c.citations.map((x) => x.id));
+    for (const [path, ref] of collectCitationRefs(s)) {
+      if (!known.has(ref)) issue(`Unknown citation id "${ref}"`, path);
+    }
+
+    // Hotspot notes must point at real hotspots.
+    const hotspotIds = new Set(p.hotspots.map((h) => h.id));
+    c.hotspotNotes.forEach((n, i) => {
+      if (!hotspotIds.has(n.hotspotId))
+        issue(`Unknown hotspot id "${n.hotspotId}"`, ["content", "hotspotNotes", i, "hotspotId"]);
+    });
+
+    // Publication gate: evidence-backed claims (levels 1–3) need at least one source.
+    if (review.status === "published") {
+      for (const [path, claim] of collectClaims(s)) {
+        if (claim.level < 4 && claim.citationIds.length === 0) {
+          issue("Claims at evidence levels 1–3 need a citation before publishing", [...path, "citationIds"]);
+        }
+      }
+    }
+  });
+
+export type EvidenceLevel = z.infer<typeof evidenceLevelSchema>;
+export type Claim = z.infer<typeof claimSchema>;
+export type Citation = z.infer<typeof citationSchema>;
+export type PresentationMode = z.infer<typeof presentationModeSchema>;
+export type SpeciesContent = z.infer<typeof contentSchema>;
+export type SpeciesPresentation = z.infer<typeof presentationSchema>;
+/** Shape authors write in content files (before defaults/transforms). */
+export type SpeciesInput = z.input<typeof speciesSchema>;
+export type Species = z.output<typeof speciesSchema>;
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+type Path = (string | number)[];
+
+function findDuplicates(values: string[]): string[] {
+  const seen = new Set<string>();
+  return [...new Set(values.filter((v) => (seen.has(v) ? true : (seen.add(v), false))))];
+}
+
+function collectClaims(s: Pick<Species, "content" | "presentation">): [Path, Claim][] {
+  const out: [Path, Claim][] = [];
+  s.presentation.appearanceNotes.forEach((c, i) => out.push([["presentation", "appearanceNotes", i], c]));
+  const c = s.content;
+  if (!c) return out;
+  out.push([["content", "dietEvidence"], c.dietEvidence]);
+  (["facts", "known", "uncertain", "discovery"] as const).forEach((key) =>
+    c[key].forEach((claim, i) => out.push([["content", key, i], claim])),
+  );
+  c.hotspotNotes.forEach((n, i) => out.push([["content", "hotspotNotes", i, "body"], n.body]));
+  return out;
+}
+
+function collectCitationRefs(s: Pick<Species, "content" | "presentation">): [Path, string][] {
+  const out: [Path, string][] = [];
+  for (const [path, claim] of collectClaims(s)) {
+    claim.citationIds.forEach((ref, i) => out.push([[...path, "citationIds", i], ref]));
+  }
+  const c = s.content;
+  if (!c) return out;
+  c.age.citationIds.forEach((ref, i) => out.push([["content", "age", "citationIds", i], ref]));
+  c.localities.forEach((l, li) =>
+    l.citationIds.forEach((ref, i) => out.push([["content", "localities", li, "citationIds", i], ref])),
+  );
+  (["length", "hipHeight", "mass"] as const).forEach((key) =>
+    c.measurements[key]?.estimates.forEach((e, i) =>
+      out.push([["content", "measurements", key, "estimates", i, "citationId"], e.citationId]),
+    ),
+  );
+  return out;
+}

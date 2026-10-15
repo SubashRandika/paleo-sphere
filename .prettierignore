@@ -1,0 +1,11 @@
+.next
+node_modules
+package-lock.json
+assets-src
+reference
+public/models
+test-results
+playwright-report
+CLAUDE.md
+AGENTS.md
+docs
