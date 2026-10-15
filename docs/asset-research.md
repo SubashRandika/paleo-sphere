@@ -95,7 +95,25 @@ GPU memory (gltf-transform estimate) for the **high** variant with WebP: **~106 
 
 Note: the conversion adds `KHR_materials_specular`. three.js will therefore use `MeshPhysicalMaterial`, which costs slightly more than `MeshStandardMaterial`. Phase 4 decides whether to keep it.
 
-## 7. Next verification steps (Phase 3/4)
+### Delivered asset — Phase 3 (2026-10-16)
+
+Reproduce with:
+
+```
+npm run asset:prepare -- --input assets-src/trex/tyrant_king_-_tyrannosaurus/scene.gltf --output assets-src/trex/work/tyrannosaurus-rex.glb --length 12
+npm run asset:build   -- --input assets-src/trex/work/tyrannosaurus-rex.glb --slug tyrannosaurus-rex
+```
+
+| Check | Result |
+|---|---|
+| Size (glTF axes) | 2.84 W × 4.21 H × 12.0 L m; feet at y = 0; head toward +Z (eyes at z ≈ 5.1, y ≈ 3.7) |
+| Hierarchy | 2 mesh nodes, identity transforms, no empties |
+| Material | Metallic-roughness; spec-gloss extension gone; `KHR_materials_specular` dropped by the pipeline |
+| Output | high 4.02 MB (est. 84 MB VRAM) · mobile 1.92 MB (est. 34 MB VRAM) |
+
+The 12 m length is provisional until a sourced estimate is recorded in Phase 5; re-run both commands with the new length.
+
+## 7. Next verification steps (Phase 4)
 
 1. Download the *T. rex* candidate; inspect in a glTF viewer / Blender: real map resolution, UV quality, scale, polycount, presence of eyes/teeth/claws as separate materials.
 2. Confirm the license on the model's page and the download package (they can differ from API metadata).

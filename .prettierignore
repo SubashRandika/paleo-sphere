@@ -9,3 +9,6 @@ playwright-report
 CLAUDE.md
 AGENTS.md
 docs
+.lookdev
+public/vendor
+public/lookdev

@@ -34,6 +34,9 @@ const eslintConfig = defineConfig([
     "reference/**",
     "test-results/**",
     "playwright-report/**",
+    "public/vendor/**",
+    "public/lookdev/**",
+    ".lookdev/**",
   ]),
 ]);
 

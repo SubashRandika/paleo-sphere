@@ -2,24 +2,40 @@
 
 ## Current state
 
-- **Phase:** 3 — First working 3D viewer (not started)
-- **Task:** 3.1 — Prepare the *T. rex* in Blender (you)
-- **Next recommended action:** Task 3.1. Task 1.3 (install KTX-Software) is still open and needed before Phase 4.
+- **Phase:** 3 — First working 3D viewer (implemented; real-device validation pending)
+- **Phase:** 4 — Realism and asset pipeline (implemented 2026-10-16; awaiting your review)
+- **Task:** Review `docs/lookdev/tyrannosaurus-rex.md`; Task 3.6 (real-device check) still open
+- **Next recommended action:** Approve Phase 4 → Phase 5 (scientific species content), which also resolves the anatomy questions in the lookdev report.
 
 ## Phase checklist
 
 - [x] Phase 0 — Discovery and requirements (approved 2026-10-15)
 - [x] Phase 1 — Technical research and architecture (approved 2026-10-15)
   - [x] Architecture proposal; *T. rex* inspection; pipeline spike
-  - [ ] 1.3 Install KTX-Software (`toktx`) and re-measure VRAM with KTX2 (you; needed by Phase 4)
+  - [x] 1.3 Install KTX-Software and re-measure VRAM with KTX2 (done in Phase 4)
 - [x] Phase 2 — Project foundation (2026-10-16)
   - [x] 2.1 Next.js 16.4 (App Router, Turbopack, Cache Components), TypeScript strict, ESLint, Prettier
   - [x] 2.2 Vitest + React Testing Library; Playwright (desktop + mobile Chromium)
   - [x] 2.3 Folder structure, design tokens (dark + light), species page and home layout
   - [x] 2.4 Zod species schema, repository, `ViewerConfig`, draft *T. rex* record
   - [x] 2.5 Verified: build ✓, typecheck ✓, lint ✓, format ✓, 20 unit/component tests ✓, 10 e2e tests ✓
-- [ ] Phase 3 — First working 3D viewer
-- [ ] Phase 4 — Realism and asset pipeline
+- [ ] Phase 3 — First working 3D viewer (Claude implemented, 2026-10-16)
+  - [x] 3.1 Blender prep script: life-size 12 m, flattened, identity transforms, head +Z
+  - [x] 3.2 Asset pipeline script: high 4.02 MB / mobile 1.92 MB, est. 84 / 34 MB VRAM
+  - [x] 3.3 Viewer: R3F canvas (demand frameloop, AgX), Lightformer studio IBL, floor pool + contact shadow, CameraControls with limits
+  - [x] 3.4 Controls: rotate/zoom/pan (mouse + touch), Side/Front/Head presets, zoom buttons, reset, full screen, keyboard, reduced motion, aspect-fitted framing
+  - [x] 3.5 States: loading %, error + retry, no-WebGL2 fallback with poster; poster generated from the live render
+  - [x] Verified: 40 unit/component tests, 18 e2e tests (desktop + Pixel 7 emulation, SwiftShader), lazy loading confirmed (`perf.md`)
+  - [ ] 3.6 Real-device check: frame rate and feel on a real desktop GPU and a real phone (you)
+- [x] Phase 4 — Realism and asset pipeline (Claude implemented, 2026-10-16)
+  - [x] 4.1 KTX2 pipeline + loader (KTX-Software 4.4.2); chosen hybrid ETC1S + WebP normals: 4.09 MB / ~35–42 MB VRAM (was 4.02 / ~84)
+  - [x] 4.2 Blender Cycles reference render (`scripts/blender/reference_render.py`)
+  - [x] 4.3 Lookdev page + contact sheets: texture encoding, tone mapping, maps, lighting, shadows (`docs/lookdev/`)
+  - [x] 4.4 Anatomy review of the model (questions for Phase 5)
+  - [x] 4.5 Render-vs-asset decision documented; Neutral tone mapping, stronger key, one-shot shadow map shipped
+  - [x] Fixed: GPU warm-up before "ready"; Strict-Mode-safe deferred disposal; shadow-map sampler error (with e2e guard)
+  - [x] Verified: 46 unit/component tests, 20 e2e tests, production build, `/dev/lookdev` 404 in production
+  - [x] Task 1.3 closed: KTX-Software 4.4.2 installed (`C:\Program Files\KTX-Software\bin`)
 - [ ] Phase 5 — Scientific species content
 - [ ] Phase 6 — Complete species explorer
 - [ ] Phase 7 — Habitat and cinematic presentation
@@ -42,6 +58,11 @@
 | 2026-10-16 | ESLint blocks React/Next/three imports in `src/domain/`. | Enforces the architecture boundary automatically. |
 | 2026-10-16 | Muted text token `#8A8478` → `#9A9488`. | Original failed WCAG AA (≈4.3:1) on panel surfaces. |
 | 2026-10-16 | `@types/node` ^22 (generator default was ^20). | Matches the Node 22 runtime; required by Vitest 5 peer range. |
+| 2026-10-16 | From Phase 3, Claude implements 3D tasks directly (your request). | Faster progress; explanations stay in code comments and `architecture.md` §12. |
+| 2026-10-16 | Phase 3 rendering and pipeline decisions. | See `architecture.md` §12 (Lightformer IBL, specular extension dropped, ContactShadows y ≤ 0, `fitView`, poster capture). |
+| 2026-10-16 | *T. rex* scaled to 12 m (provisional). | Needs a sourced length estimate in Phase 5; re-run the asset scripts when it changes. |
+| 2026-10-16 | Phase 4 rendering and pipeline decisions. | See `architecture.md` §13 and `lookdev/tyrannosaurus-rex.md` (KTX2 hybrid, Neutral tone mapping, one-shot shadows, GPU warm-up). |
+| 2026-10-16 | Keep the *T. rex* asset for the MVP. | Rendering closed most of the gap to the Cycles reference; remaining issues are documented and need sourcing (Phase 5) or sculpt work. |
 
 ## Assumptions
 
@@ -66,6 +87,10 @@
 - Free-only assets: game-ready sculpts (~10k–100k faces), not film-grade.
 - `T. rex` record is a draft: authority "Osborn, 1905" and all science fields to be verified in Phase 5.
 - WebKit (Safari) not yet in the Playwright matrix; add before Phase 8.
+- Viewer tested only on SwiftShader (CPU WebGL) and device emulation — no real-GPU frame-rate data yet.
+- Web fonts total 331 KB; optimise in Phase 8 (`perf.md`).
+- Source model (Phase 4 review): no lip tissue, possibly three clawed fingers on one hand, a UV seam on the flank, fixed open-mouth pose, 2014 sculpt. Resolve or label in Phase 5 (`lookdev/tyrannosaurus-rex.md` §6–7).
+- Lookdev images come from SwiftShader; real GPUs may pick different KTX2 target formats.
 
 ## Outstanding risks
 

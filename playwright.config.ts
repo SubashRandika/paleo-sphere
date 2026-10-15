@@ -11,6 +11,11 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: "on-first-retry",
+    // Headless Chromium has no GPU; SwiftShader provides WebGL 2 on the CPU so the viewer can run.
+    // Fine for behaviour tests — not for measuring frame rate.
+    launchOptions: {
+      args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"],
+    },
   },
   projects: [
     { name: "desktop-chromium", use: { ...devices["Desktop Chrome"] } },

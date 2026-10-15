@@ -48,3 +48,9 @@ next-env.d.ts
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+.lookdev/
+
+# runtime decoders copied from node_modules (scripts/copy-vendor.mjs)
+/public/vendor/
+# lookdev comparison assets
+/public/lookdev/

@@ -7,7 +7,8 @@ Independent, non-commercial educational project. Not affiliated with any museum.
 ## Requirements
 
 - Node.js ≥ 22.12
-- Blender 5.1 (asset preparation)
+- Blender 5.1 (asset preparation, reference renders)
+- KTX-Software 4.4+ (KTX2 texture encoding; `ktx` on PATH, or `KTX_SOFTWARE_BIN`)
 
 ## Commands
 
@@ -19,6 +20,26 @@ Independent, non-commercial educational project. Not affiliated with any museum.
 | `npm test`       | Unit and component tests (Vitest)                                                                       |
 | `npm run e2e`    | End-to-end tests (Playwright, against a production build). First run: `npx playwright install chromium` |
 | `npm run format` | Format all files (Prettier)                                                                             |
+
+## 3D asset pipeline
+
+Raw downloads go in `assets-src/` (git-ignored). Three steps turn one into web deliverables in `public/models/<slug>/`:
+
+| Command                                                                                          | What it does                                                                                                                                       |
+| ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run asset:prepare -- --input <source.gltf> --output <prepared.glb> --length <m>`            | Headless Blender: flatten, apply transforms, centre, feet on ground, scale to life size (`BLENDER` env overrides the path)                         |
+| `npm run asset:build -- --input <prepared.glb> --slug <slug>`                                    | `-high.glb` (2K) and `-mobile.glb` (1K): KTX2 ETC1S colour/AO/roughness, WebP normal maps, Meshopt geometry; prints sizes and estimated GPU memory |
+| `npm run asset:capture -- --url <species page> --poster public/models/<slug>/<slug>-poster.webp` | Screenshots every camera preset into `.lookdev/` and writes the transparent poster image (needs a running server)                                  |
+
+## Look development
+
+| Command                                                                                                                                     | What it does                                                                                                                            |
+| ------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `npx next dev -p 3300`, then open `/dev/lookdev?view=head&tone=neutral`                                                                     | Dev-only page (404 in production) that renders a species with render settings from the URL; see `src/features/viewer/lookdev-params.ts` |
+| `node scripts/lookdev.mjs --base http://localhost:3300 [--only textures,shadows]`                                                           | Renders labelled comparison sheets into `docs/lookdev/img/`                                                                             |
+| `blender --background --factory-startup --python scripts/blender/reference_render.py -- --input … --output … --camera x,y,z --target x,y,z` | Cycles ground-truth render from the same camera as the web viewer                                                                       |
+
+Results and decisions: [docs/lookdev/tyrannosaurus-rex.md](docs/lookdev/tyrannosaurus-rex.md).
 
 ## Project layout
 

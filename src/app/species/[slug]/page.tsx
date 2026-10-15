@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAllSpecies, getSpeciesBySlug } from "@/domain/species/repository";
+import { toViewerConfig } from "@/domain/species/viewer-config";
 import { ModelAttribution } from "@/features/article/ModelAttribution";
-import { ViewerPlaceholder } from "@/features/viewer/ViewerPlaceholder";
+import { ViewerIsland } from "@/features/viewer/ViewerIsland";
 
 // Every species page is prerendered at build time. Content is validated here,
 // so an invalid species file fails `next build`.
@@ -28,7 +29,7 @@ export default async function SpeciesPage({ params }: PageProps<"/species/[slug]
 
   return (
     <div className="grid flex-1 lg:h-[calc(100svh-3.5rem)] lg:flex-none lg:grid-cols-[minmax(0,1fr)_24rem]">
-      <ViewerPlaceholder modelDescription={species.presentation.a11y.modelDescription} />
+      <ViewerIsland config={toViewerConfig(species)} />
 
       <aside className="space-y-8 border-t border-rule px-4 py-8 sm:px-6 lg:overflow-y-auto lg:border-t-0 lg:border-l">
         <header className="space-y-2">

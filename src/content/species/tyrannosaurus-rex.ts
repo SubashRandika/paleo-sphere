@@ -26,8 +26,13 @@ export const tyrannosaurusRex: SpeciesInput = {
       sourceUrl: "https://sketchfab.com/3d-models/tyrant-king-tyrannosaurus-6465a297fa784598adc49f6e0042d449",
       license: "CC-BY-4.0",
       licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
-      // Filled in when the asset pipeline produces the delivered files (Phase 3).
-      modifications: [],
+      // What scripts/blender/prepare_model.py and scripts/build-asset.mjs change (CC BY requires stating this).
+      modifications: [
+        "scaled to an estimated life-size length of 12 m",
+        "material converted from specular-glossiness to metallic-roughness",
+        "textures resized and re-encoded",
+        "geometry compressed",
+      ],
     },
     appearanceNotes: [
       {
@@ -36,13 +41,15 @@ export const tyrannosaurusRex: SpeciesInput = {
         citationIds: [],
       },
     ],
+    // Model is life-size: 12 m long (z −6 → +6, head toward +z), 4.2 m tall, eyes ≈ 3.7 m up.
     camera: {
-      default: { position: [14, 4, 10], target: [0, 2, 0] },
+      default: { position: [12.5, 4.6, 11], target: [0, 2.9, 0.4] },
       presets: [
-        { id: "side", label: "Side", position: [18, 3, 0], target: [0, 2, 0] },
-        { id: "front", label: "Front", position: [0, 3, 16], target: [0, 2.5, 0] },
+        { id: "side", label: "Side", position: [18, 2.8, 0], target: [0, 2.8, 0] },
+        { id: "front", label: "Front", position: [2.5, 4, 15], target: [0, 2.8, 2] },
+        { id: "head", label: "Head", position: [5, 4.4, 9.5], target: [0, 3.5, 5] },
       ],
-      limits: { minDistance: 3, maxDistance: 40, maxPolarAngle: 1.45 },
+      limits: { minDistance: 2, maxDistance: 45, maxPolarAngle: 1.5 },
     },
     modes: ["studio"],
     hotspots: [],

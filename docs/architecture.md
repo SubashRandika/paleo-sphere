@@ -266,7 +266,45 @@ Details in `asset-research.md` §6.
 - Measured payloads: **4.13 MB high / 1.75 MB mobile** (WebP + meshopt). Both are within the PRD budgets (8 MB / 4 MB).
 - VRAM with WebP: ~106 MB for the high variant → KTX2 remains necessary for mobile safety. **KTX-Software must be installed** before Phase 4.
 
-## 12. Decisions requested
+## 12. Phase 3 implementation notes (2026-10-16)
+
+What was built, and decisions made while building it.
+
+| Area | Decision | Why |
+|---|---|---|
+| Asset prep | Headless Blender via `scripts/blender/prepare_model.py` (wrapped by `npm run asset:prepare`) | Repeatable for every species; no manual Blender steps to forget. Local Blender, so licensed assets are not uploaded to third-party services |
+| Pipeline | Drop `KHR_materials_specular` / `KHR_materials_ior` | Saves a full-size texture (~22 MB VRAM at 2K) and keeps `MeshStandardMaterial`; skin is dielectric, default F0 0.04 is defensible. Revisit in Phase 4 lookdev |
+| Studio IBL | Drei `<Environment>` built from `<Lightformer>` panels, rendered once | No HDRI download; art-directable "lit specimen" look; zero per-frame cost |
+| Grounding | Faint radial floor disc + `ContactShadows` rendered once | A contact shadow alone is invisible on a dark backdrop |
+| ContactShadows position | **y ≤ 0** (we use −0.001) | Drei's blur passes draw a plane at world y = 0 through a shadow camera at the component's position looking up with near = 0. Any positive y clips that plane and the shadow output is empty. Found by reading the render target pixels |
+| Tone mapping | AgX, exposure 1.15 | Natural highlight roll-off on skin; compare with Neutral in Phase 4 |
+| Camera framing | `fitView`: views are authored for a 1.25 aspect stage; narrower stages pull the camera back by `1.25 / aspect` (max 2.5×) | Portrait phones cropped the head with the desktop framing. One rule fixes every species and preset |
+| Store ↔ camera | Store depends on a narrow `CameraController` interface; `CameraRig` passes an adapter | Store is unit-testable without WebGL and independent of camera-controls' full API |
+| Error handling | Error boundary around the canvas; retry clears the loader cache (`useGLTF.clear`) then remounts | A failed request is cached by the loader; without clearing, retry would replay the failure |
+| No WebGL 2 | Detected with `useSyncExternalStore` (server snapshot `null`), canvas never mounted, poster + explanation shown | No hydration mismatch; the page stays useful |
+| Poster | Captured from the real viewer with a transparent background (`npm run asset:capture -- --poster …`) | Matches the live render exactly and sits seamlessly on the stage gradient at any aspect |
+| Draco | Disabled in `useGLTF` | Our assets use Meshopt; Drei's default would point a Draco decoder at Google's CDN |
+
+Not in Phase 3 (planned later): anatomy hotspots, presentation-mode switcher, pause-animation control (the *T. rex* model has no animation), species switching and its GPU-memory verification (Phase 6).
+
+## 13. Phase 4 implementation notes (2026-10-16)
+
+Evidence and images: `docs/lookdev/tyrannosaurus-rex.md`.
+
+| Area | Decision | Why |
+|---|---|---|
+| Texture encoding | KTX2 **ETC1S** for base colour / AO / roughness; **WebP** for normal maps | Same download as all-WebP (4.09 vs 4.02 MB) with ~half the GPU memory. UASTC normals were visually equal but 4.6 MB per 2K map (gltf-transform skips RDO on normals by design); ETC1S normals showed block artefacts |
+| 4K textures | Not shipped | Marginal gain at 6× the download |
+| KTX2 runtime | three's `KTX2Loader`, one per renderer (`src/lib/three/ktx2.ts`), workers released on canvas unmount; transcoder copied from `node_modules/three` by `scripts/copy-vendor.mjs` (predev/prebuild) | Same-origin, version-locked to three; one-time 253 KB gzip |
+| GPU warm-up | `compileAsync(model, camera, rootScene)` + `initTexture` before status "ready" | three otherwise compiles/uploads on the first visible frame — a stall on the visitor's first drag. Passing the real scene root matters: shaders depend on its lights and environment map |
+| Disposal | Deferred one tick; a remount of the same scene cancels it | React Strict Mode (dev) simulates unmount/remount; immediate disposal destroyed a model about to be shown again |
+| Tone mapping | Khronos PBR **Neutral**, exposure 1.15 | Faithful albedo hues; AgX greyed the skin |
+| Lighting | Environment 1.2, key 4.5 | Body form at full-figure distance |
+| Shadows | Key-light `PCFShadowMap`, 2048², `shadow.autoUpdate = false`, rendered on mount and again when the model is ready; `ShadowMaterial` floor catcher | Self-shadowing was the largest gap vs. Cycles. Static scene → shadow pass runs once. Rendering on mount avoids a WebGL texture/sampler mismatch from sampling a not-yet-rendered map. `PCFSoftShadowMap` was removed in r18x |
+| Lookdev | Dev-only `/dev/lookdev` (404 in production) driven by URL params; `scripts/lookdev.mjs` writes labelled contact sheets; `scripts/blender/reference_render.py` renders the Cycles ground truth | Repeatable visual comparisons for every future species |
+| Regression guard | e2e test fails on any `GL_INVALID…` console message | The shadow/sampler bug produced no visible symptom in screenshots |
+
+## 14. Decisions requested
 
 Approve or amend:
 
