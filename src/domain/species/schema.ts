@@ -18,22 +18,50 @@ const id = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase kebab-c
 /** 1 direct fossil evidence · 2 strong inference · 3 plausible reconstruction · 4 artistic interpretation */
 export const evidenceLevelSchema = z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]);
 
+/** Content prose. One piece of markup is allowed: `_Name_` for italic scientific names. */
+const richText = z
+  .string()
+  .min(1)
+  .refine((t) => (t.match(/_/g) ?? []).length % 2 === 0, "Unmatched _ in italic markup");
+
 export const claimSchema = z.strictObject({
-  text: z.string().min(1),
+  text: richText,
   level: evidenceLevelSchema,
   citationIds: z.array(id),
 });
 
-export const citationSchema = z.strictObject({
-  id,
-  authors: z.array(z.string().min(1)).min(1),
-  year: z.number().int().min(1800),
-  title: z.string().min(1),
-  venue: z.string().min(1),
-  doi: z.string().optional(),
-  url: z.url(),
-  accessed: z.iso.date(),
-});
+/** An interesting fact: a claim with a short headline for its card. */
+export const factSchema = claimSchema.extend({ title: richText });
+
+/**
+ * Source tiers (docs/science-requirements.md §2): `article`/`book` are tier 1,
+ * `web` is a museum page (tier 2), `database` is the Paleobiology Database (tier 3).
+ */
+export const citationTypeSchema = z.enum(["article", "book", "web", "database"]);
+
+export const citationSchema = z
+  .strictObject({
+    id,
+    type: citationTypeSchema,
+    /** Family name first ("Bell, P. R."), or the institution for unsigned museum pages. */
+    authors: z.array(z.string().min(1)).min(1),
+    /** Omitted only for undated web pages. */
+    year: z.number().int().min(1800).optional(),
+    title: z.string().min(1),
+    venue: z.string().min(1),
+    volume: z.string().optional(),
+    pages: z.string().optional(),
+    doi: z
+      .string()
+      .regex(/^10\.\d{4,9}\/\S+$/, "Store the bare DOI, e.g. 10.1098/rsbl.2017.0092")
+      .optional(),
+    url: z.url(),
+    accessed: z.iso.date(),
+  })
+  .refine((c) => c.type === "web" || c.type === "database" || c.year !== undefined, {
+    message: "Articles and books need a publication year",
+    path: ["year"],
+  });
 
 const vec3 = z.tuple([z.number(), z.number(), z.number()]);
 
@@ -47,7 +75,10 @@ const estimateSchema = z
     min: z.number().positive(),
     max: z.number().positive(),
     unit: z.enum(["m", "kg", "t"]),
+    /** How the estimate was made, in plain words: "Volumetric model of one skeleton". */
     method: z.string().min(1),
+    /** Set when the estimate describes one individual rather than the species. */
+    specimen: z.string().min(1).optional(),
     citationId: id,
   })
   .refine((e) => e.min <= e.max, { message: "min must be ≤ max", path: ["max"] });
@@ -88,10 +119,18 @@ export const contentSchema = z.strictObject({
   }),
   diet: z.enum(["carnivore", "herbivore", "omnivore"]),
   dietEvidence: claimSchema,
-  summary: z.string().min(1),
-  facts: z.array(claimSchema).min(3).max(5),
+  summary: richText,
+  facts: z.array(factSchema).min(3).max(5),
   known: z.array(claimSchema).min(1),
   uncertain: z.array(claimSchema).min(1),
+  /** Distinctive skeletal features and adaptations. */
+  anatomy: z.array(claimSchema).min(1),
+  /** Skin, scales, feathers, armour and colour evidence — for the animal, not the 3D model. */
+  integument: z.array(claimSchema).min(1),
+  /** Locomotion, feeding, social behaviour, growth. Hypotheses are labelled by level. */
+  behaviour: z.array(claimSchema).min(1),
+  /** Environment and ecological role. */
+  habitat: z.array(claimSchema).min(1),
   discovery: z.array(claimSchema).min(1),
   hotspotNotes: z.array(z.strictObject({ hotspotId: id, title: z.string().min(1), body: claimSchema })),
   citations: z.array(citationSchema).min(1),
@@ -167,7 +206,8 @@ export const speciesSchema = z
     synonyms: z.array(z.string().min(1)),
     /** Optional while drafting; required once reviewed. */
     content: contentSchema.optional(),
-    presentation: presentationSchema,
+    /** Absent until a suitable 3D model has been prepared; the page then shows text only. */
+    presentation: presentationSchema.optional(),
     review: z.strictObject({
       status: reviewStatusSchema,
       reviewedOn: z.iso.date().optional(),
@@ -179,21 +219,25 @@ export const speciesSchema = z
 
     const { presentation: p, content: c, review } = s;
 
-    // Modes must have what they need to render.
-    if (!p.modes.includes("studio")) issue("Every species supports studio mode", ["presentation", "modes"]);
-    if (p.modes.includes("fossil") && !p.fossil)
-      issue("fossil mode requires presentation.fossil", ["presentation", "fossil"]);
-    if (p.modes.includes("habitat") && !p.habitatId)
-      issue("habitat mode requires presentation.habitatId", ["presentation", "habitatId"]);
-    if (p.modes.includes("anatomy") && p.hotspots.length === 0)
-      issue("anatomy mode requires hotspots", ["presentation", "hotspots"]);
+    if (p) {
+      // Modes must have what they need to render.
+      if (!p.modes.includes("studio")) issue("Every species supports studio mode", ["presentation", "modes"]);
+      if (p.modes.includes("fossil") && !p.fossil)
+        issue("fossil mode requires presentation.fossil", ["presentation", "fossil"]);
+      if (p.modes.includes("habitat") && !p.habitatId)
+        issue("habitat mode requires presentation.habitatId", ["presentation", "habitatId"]);
+      if (p.modes.includes("anatomy") && p.hotspots.length === 0)
+        issue("anatomy mode requires hotspots", ["presentation", "hotspots"]);
 
-    findDuplicates(p.hotspots.map((h) => h.id)).forEach((d) =>
-      issue(`Duplicate hotspot id "${d}"`, ["presentation", "hotspots"]),
-    );
-    findDuplicates(p.camera.presets.map((v) => v.id)).forEach((d) =>
-      issue(`Duplicate camera preset id "${d}"`, ["presentation", "camera", "presets"]),
-    );
+      findDuplicates(p.hotspots.map((h) => h.id)).forEach((d) =>
+        issue(`Duplicate hotspot id "${d}"`, ["presentation", "hotspots"]),
+      );
+      findDuplicates(p.camera.presets.map((v) => v.id)).forEach((d) =>
+        issue(`Duplicate camera preset id "${d}"`, ["presentation", "camera", "presets"]),
+      );
+    }
+
+    if (!p && !c) issue("A record needs content, a 3D model, or both", ["content"]);
 
     // Review gates.
     if (review.status !== "draft") {
@@ -213,25 +257,44 @@ export const speciesSchema = z
     }
 
     // Hotspot notes must point at real hotspots.
-    const hotspotIds = new Set(p.hotspots.map((h) => h.id));
+    const hotspotIds = new Set(p?.hotspots.map((h) => h.id));
     c.hotspotNotes.forEach((n, i) => {
       if (!hotspotIds.has(n.hotspotId))
         issue(`Unknown hotspot id "${n.hotspotId}"`, ["content", "hotspotNotes", i, "hotspotId"]);
     });
 
-    // Publication gate: evidence-backed claims (levels 1–3) need at least one source.
-    if (review.status === "published") {
+    // Display gate: reviewed and published records are shown to visitors, so every
+    // evidence-backed claim (levels 1–3) needs at least one source.
+    // `published` differs from `reviewed` only in being indexed by search engines.
+    if (review.status !== "draft") {
       for (const [path, claim] of collectClaims(s)) {
         if (claim.level < 4 && claim.citationIds.length === 0) {
-          issue("Claims at evidence levels 1–3 need a citation before publishing", [...path, "citationIds"]);
+          issue("Claims at evidence levels 1–3 need a citation before they are shown", [
+            ...path,
+            "citationIds",
+          ]);
         }
       }
     }
   });
 
+/** Content sections that are plain lists of claims, in reading order. */
+export const CLAIM_SECTIONS = [
+  "facts",
+  "known",
+  "uncertain",
+  "anatomy",
+  "integument",
+  "behaviour",
+  "habitat",
+  "discovery",
+] as const;
+
 export type EvidenceLevel = z.infer<typeof evidenceLevelSchema>;
 export type Claim = z.infer<typeof claimSchema>;
+export type Fact = z.infer<typeof factSchema>;
 export type Citation = z.infer<typeof citationSchema>;
+export type CitationType = z.infer<typeof citationTypeSchema>;
 export type PresentationMode = z.infer<typeof presentationModeSchema>;
 export type SpeciesContent = z.infer<typeof contentSchema>;
 export type SpeciesPresentation = z.infer<typeof presentationSchema>;
@@ -250,13 +313,11 @@ function findDuplicates(values: string[]): string[] {
 
 function collectClaims(s: Pick<Species, "content" | "presentation">): [Path, Claim][] {
   const out: [Path, Claim][] = [];
-  s.presentation.appearanceNotes.forEach((c, i) => out.push([["presentation", "appearanceNotes", i], c]));
+  s.presentation?.appearanceNotes.forEach((c, i) => out.push([["presentation", "appearanceNotes", i], c]));
   const c = s.content;
   if (!c) return out;
   out.push([["content", "dietEvidence"], c.dietEvidence]);
-  (["facts", "known", "uncertain", "discovery"] as const).forEach((key) =>
-    c[key].forEach((claim, i) => out.push([["content", key, i], claim])),
-  );
+  CLAIM_SECTIONS.forEach((key) => c[key].forEach((claim, i) => out.push([["content", key, i], claim])));
   c.hotspotNotes.forEach((n, i) => out.push([["content", "hotspotNotes", i, "body"], n.body]));
   return out;
 }

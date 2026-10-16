@@ -28,7 +28,10 @@ export default function HomePage() {
                 className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-1 py-4 hover:bg-surface"
               >
                 <span className="font-display text-2xl italic">{s.scientificName}</span>
-                <span className="font-mono text-xs text-muted">{s.authority}</span>
+                <span className="flex items-baseline gap-4">
+                  {!s.presentation && <span className="label">Text only · 3D model in preparation</span>}
+                  <span className="font-mono text-xs text-muted">{s.authority}</span>
+                </span>
               </Link>
             </li>
           ))}

@@ -24,12 +24,52 @@ describe("parseSpeciesRecords", () => {
 
 describe("toViewerConfig", () => {
   it("passes rendering data and excludes scientific content and attribution", () => {
-    const species = getAllSpecies()[0]!;
+    const species = getSpeciesBySlug("tyrannosaurus-rex")!;
     const config = toViewerConfig(species);
 
-    expect(config.model).toEqual(species.presentation.model);
+    expect(config?.model).toEqual(species.presentation?.model);
     expect(config).not.toHaveProperty("content");
     expect(config).not.toHaveProperty("attribution");
     expect(config).not.toHaveProperty("citations");
   });
+
+  it("returns undefined for a species without a 3D model", () => {
+    const textOnly = getAllSpecies().find((s) => !s.presentation);
+    expect(textOnly).toBeDefined();
+    expect(toViewerConfig(textOnly!)).toBeUndefined();
+  });
+});
+
+describe("published content integrity", () => {
+  // Every record shown to visitors must also satisfy the stricter publish gate,
+  // so flipping `reviewed` → `published` never needs content changes.
+  it.each(getAllSpecies().filter((s) => s.review.status !== "draft"))(
+    "$slug: every claim cites a source listed in the record",
+    (species) => {
+      const cited = new Set(species.content!.citations.map((c) => c.id));
+      const used = new Set<string>();
+      const c = species.content!;
+      for (const claim of [
+        c.dietEvidence,
+        ...c.facts,
+        ...c.known,
+        ...c.uncertain,
+        ...c.anatomy,
+        ...c.integument,
+        ...c.behaviour,
+        ...c.habitat,
+        ...c.discovery,
+        ...(species.presentation?.appearanceNotes ?? []),
+      ]) {
+        if (claim.level < 4) expect(claim.citationIds.length, claim.text).toBeGreaterThan(0);
+        claim.citationIds.forEach((id) => used.add(id));
+      }
+      c.age.citationIds.forEach((id) => used.add(id));
+      c.localities.forEach((l) => l.citationIds.forEach((id) => used.add(id)));
+      Object.values(c.measurements).forEach((m) => m?.estimates.forEach((e) => used.add(e.citationId)));
+
+      // No orphaned sources: everything in the list supports something on the page.
+      expect([...cited].filter((id) => !used.has(id))).toEqual([]);
+    },
+  );
 });

@@ -111,7 +111,7 @@ npm run asset:build   -- --input assets-src/trex/work/tyrannosaurus-rex.glb --sl
 | Material | Metallic-roughness; spec-gloss extension gone; `KHR_materials_specular` dropped by the pipeline |
 | Output | high 4.02 MB (est. 84 MB VRAM) · mobile 1.92 MB (est. 34 MB VRAM) |
 
-The 12 m length is provisional until a sourced estimate is recorded in Phase 5; re-run both commands with the new length.
+Phase 5: 12 m is the typical adult length given by the Natural History Museum, London (largest specimens ≈ 13 m; see `docs/research/tyrannosaurus-rex.md`), so the asset was not rebuilt.
 
 ## 7. Next verification steps (Phase 4)
 

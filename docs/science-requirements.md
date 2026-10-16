@@ -54,15 +54,19 @@ Final list pending the *Velociraptor* decision (see `asset-research.md` §4).
 | *Mamenchisaurus* | Sauropod | Late Jurassic (Asia) | Extreme neck proportions; adds an Asian locality. |
 | *Allosaurus* (proposed) or *Velociraptor* | Theropod | Late Jurassic / Late Cretaceous | *Allosaurus* pairs with *Stegosaurus* in one Morrison habitat. |
 
-## 6. Leads to verify in Phase 5
+## 6. Leads to verify in Phase 5: outcome (2026-10-16)
 
-Listed from prior knowledge — **not yet verified against the source**. Each must be confirmed (and given full bibliographic detail) before use.
+| Lead (from prior knowledge) | Outcome |
+|---|---|
+| *Velociraptor* quill knobs, Turner, Makovicky & Norell (2007) | Not needed: *Velociraptor* was replaced by *Allosaurus* |
+| *T. rex* integument, Bell et al. (2017), *Biology Letters* | **Verified** (Crossref + abstract), cited as `bell-2017` |
+| *T. rex* "Sue", FMNH PR 2081 | **Verified** via Brochu (2003); the Field Museum page was unreachable |
+| *Stegosaurus stenops* "Sophie", Maidment et al. (2015), *PLOS ONE* | **Verified** (full text): NHMUK PV R36730 |
 
-- *Velociraptor* forearm quill knobs — Turner, Makovicky & Norell (2007), *Science*.
-- *T. rex* skin impressions and integument — Bell et al. (2017), *Biology Letters*.
-- *T. rex* specimen FMNH PR 2081 ("Sue"), Field Museum.
-- *Stegosaurus stenops* specimen "Sophie", NHM London — Maidment et al. (2015), *PLOS ONE*.
+Per-species research notes: `docs/research/`.
 
 ## 7. Review rule
 
 A species is publishable only when every displayed claim has a level and a citation, and a second pass has checked each citation resolves and supports the claim as worded.
+
+How this is applied (Phase 5): "every displayed claim has a level and a citation" and "each citation resolves" are automated (`npm test`, `npm run content:verify`). "Supports the claim as worded" is manual and recorded per claim in `docs/research/`. Records that pass are `reviewed` (shown, `noindex`); `published` is the owner's sign-off after reading the research notes.

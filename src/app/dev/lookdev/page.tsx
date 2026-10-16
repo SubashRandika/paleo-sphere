@@ -14,7 +14,12 @@ export const metadata: Metadata = { title: "Lookdev", robots: { index: false, fo
  */
 export default function LookdevPage() {
   if (process.env.NODE_ENV === "production") notFound();
-  const configs = Object.fromEntries(getAllSpecies().map((s) => [s.slug, toViewerConfig(s)]));
+  const configs = Object.fromEntries(
+    getAllSpecies().flatMap((s) => {
+      const config = toViewerConfig(s);
+      return config ? [[s.slug, config]] : [];
+    }),
+  );
   return (
     <Suspense>
       <LookdevStage configs={configs} />

@@ -4,6 +4,7 @@ import { speciesSchema, type SpeciesInput } from "./schema";
 // Test fixtures use obviously fake data; real species live in src/content.
 const citation = {
   id: "ref-a",
+  type: "article" as const,
   authors: ["Example, A."],
   year: 2000,
   title: "Fixture paper",
@@ -47,6 +48,7 @@ function draft(): SpeciesInput {
 
 function withContent(): SpeciesInput {
   const claim = { text: "Supported claim.", level: 1 as const, citationIds: ["ref-a"] };
+  const fact = { ...claim, title: "A fixture fact" };
   return {
     ...draft(),
     content: {
@@ -62,9 +64,13 @@ function withContent(): SpeciesInput {
       diet: "carnivore",
       dietEvidence: claim,
       summary: "A fixture animal.",
-      facts: [claim, claim, claim],
+      facts: [fact, fact, fact],
       known: [claim],
       uncertain: [{ ...claim, level: 3 }],
+      anatomy: [claim],
+      integument: [claim],
+      behaviour: [{ ...claim, level: 3 }],
+      habitat: [claim],
       discovery: [claim],
       hotspotNotes: [],
       citations: [citation],
@@ -92,7 +98,7 @@ describe("speciesSchema", () => {
 
   it("rejects a citation id that does not exist", () => {
     const s = withContent();
-    s.content!.facts[0] = { text: "x", level: 1, citationIds: ["missing"] };
+    s.content!.facts[0] = { title: "x", text: "x", level: 1, citationIds: ["missing"] };
     expect(messages(s)).toContain('Unknown citation id "missing"');
   });
 
@@ -115,10 +121,19 @@ describe("speciesSchema", () => {
     );
   });
 
-  it("blocks publishing evidence-level 1–3 claims without a source", () => {
-    const s = { ...withContent(), review: { status: "published" as const, reviewedOn: "2026-10-15" } };
+  it.each(["reviewed", "published"] as const)(
+    "blocks showing evidence-level 1–3 claims without a source (%s)",
+    (status) => {
+      const s = { ...withContent(), review: { status, reviewedOn: "2026-10-15" } };
+      s.content!.known = [{ text: "Unsourced.", level: 2, citationIds: [] }];
+      expect(messages(s)).toContain("Claims at evidence levels 1–3 need a citation before they are shown");
+    },
+  );
+
+  it("lets drafts hold unsourced claims while research is in progress", () => {
+    const s = withContent();
     s.content!.known = [{ text: "Unsourced.", level: 2, citationIds: [] }];
-    expect(messages(s)).toContain("Claims at evidence levels 1–3 need a citation before publishing");
+    expect(messages(s)).toEqual([]);
   });
 
   it("allows artistic (level 4) claims without a source when published", () => {
@@ -126,9 +141,45 @@ describe("speciesSchema", () => {
     expect(messages(s)).toEqual([]);
   });
 
+  it("accepts a content-only record for a species without a prepared 3D model", () => {
+    const s = withContent();
+    delete s.presentation;
+    expect(messages(s)).toEqual([]);
+  });
+
+  it("rejects a record with neither content nor a 3D model", () => {
+    const s = draft();
+    delete s.presentation;
+    expect(messages(s)).toContain("A record needs content, a 3D model, or both");
+  });
+
+  it("rejects unmatched italic markup in content text", () => {
+    const s = withContent();
+    s.content!.summary = "Lived with _Triceratops.";
+    expect(messages(s)).toContain("Unmatched _ in italic markup");
+  });
+
+  it("stores DOIs bare, without the resolver prefix", () => {
+    const s = withContent();
+    s.content!.citations = [{ ...citation, doi: "https://doi.org/10.1000/xyz" }];
+    expect(messages(s)).toContain("Store the bare DOI, e.g. 10.1098/rsbl.2017.0092");
+  });
+
+  it("requires a year for articles but not for undated museum pages", () => {
+    const undated: Omit<typeof citation, "year"> & { year?: number } = { ...citation };
+    delete undated.year;
+    const article = withContent();
+    article.content!.citations = [undated];
+    expect(messages(article)).toContain("Articles and books need a publication year");
+
+    const web = withContent();
+    web.content!.citations = [{ ...undated, type: "web" }];
+    expect(messages(web)).toEqual([]);
+  });
+
   it("requires the assets a presentation mode depends on", () => {
     const s = draft();
-    s.presentation.modes = ["studio", "fossil", "habitat", "anatomy"];
+    s.presentation!.modes = ["studio", "fossil", "habitat", "anatomy"];
     expect(messages(s)).toEqual(
       expect.arrayContaining([
         "fossil mode requires presentation.fossil",
@@ -140,8 +191,8 @@ describe("speciesSchema", () => {
 
   it("requires studio mode", () => {
     const s = draft();
-    s.presentation.modes = ["anatomy"];
-    s.presentation.hotspots = [{ id: "skull", position: [0, 0, 0] }];
+    s.presentation!.modes = ["anatomy"];
+    s.presentation!.hotspots = [{ id: "skull", position: [0, 0, 0] }];
     expect(messages(s)).toContain("Every species supports studio mode");
   });
 
@@ -155,7 +206,7 @@ describe("speciesSchema", () => {
 
   it("rejects camera limits where min ≥ max", () => {
     const s = draft();
-    s.presentation.camera.limits = { minDistance: 10, maxDistance: 5, maxPolarAngle: 1.4 };
+    s.presentation!.camera.limits = { minDistance: 10, maxDistance: 5, maxPolarAngle: 1.4 };
     expect(messages(s)).toContain("minDistance must be < maxDistance");
   });
 });

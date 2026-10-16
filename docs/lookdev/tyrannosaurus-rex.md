@@ -76,8 +76,8 @@ Observations about the **model**, to be checked against sources in Phase 5 befor
 |---|---|---|
 | Posture | Horizontal back, tail held clear of the ground | Consistent with modern reconstructions — verify and cite |
 | Feet | Three main toes plus a small inner dewclaw | Consistent — verify and cite |
-| Forelimbs | Side view appears to show **three clawed digits** on one hand | *T. rex* is usually reconstructed with two functional digits — verify count and, if confirmed, remove the extra claw in Blender |
-| Mouth | **No lip tissue**; all teeth exposed in a wide gape | Lip coverage in tyrannosaurs is an active research question — present as uncertain; candidate appearance note |
+| Forelimbs | Side view appeared to show three clawed digits | **Resolved (Phase 5):** the front close-up shows two claws per hand; the third was the far hand. Matches the fossils (Padian 2022) |
+| Mouth | **No lip tissue**; all teeth exposed in a wide gape | Appearance note, level 3 (Cullen et al. 2023: teeth most likely covered when the mouth was closed) |
 | Integument | Uniform large tubercles over the whole body | Compare with published skin-impression evidence — appearance note |
 | Pose | Fixed, open-mouth pose; no rig | Asset limitation; idle animation would need rigging |
 
@@ -86,9 +86,9 @@ Observations about the **model**, to be checked against sources in Phase 5 befor
 | Fixed by rendering (done) | Needs asset work or a better source |
 |---|---|
 | Tone mapping, exposure, light balance | Lipless mouth and exposed teeth (sculpt work; scientifically uncertain either way) |
-| Self-shadowing and cast shadow | Possible extra forelimb digit (small Blender mesh fix if confirmed) |
+| Self-shadowing and cast shadow | ~~Possible extra forelimb digit~~ (not an error; Phase 5) |
 | Texture encoding and GPU memory | UV seam on the flank |
 | First-interaction stall (shader/texture warm-up) | Single static pose, no rig |
 | | 2014 sculpt; dated skin interpretation |
 
-**Recommendation:** keep this asset for the MVP with honest appearance notes, fix the forelimb digit in Blender if Phase 5 confirms it, and keep watching for a better-licensed, more current *T. rex* model.
+**Recommendation:** keep this asset for the MVP with honest appearance notes, and keep watching for a better-licensed, more current *T. rex* model. (Phase 5 confirmed the hands are correct and that 12 m matches the typical adult length, so no asset change is needed.)

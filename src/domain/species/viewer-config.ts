@@ -17,8 +17,10 @@ export type ViewerConfig = {
   modelDescription: string;
 };
 
-export function toViewerConfig(species: Species): ViewerConfig {
+/** Undefined when the species has no prepared 3D model yet. */
+export function toViewerConfig(species: Species): ViewerConfig | undefined {
   const p = species.presentation;
+  if (!p) return undefined;
   return {
     slug: species.slug,
     scientificName: species.scientificName,

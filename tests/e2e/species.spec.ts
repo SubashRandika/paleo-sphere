@@ -25,7 +25,43 @@ test("species text is in the server HTML, not rendered by client JavaScript", as
   await page.goto("/species/tyrannosaurus-rex");
 
   await expect(page.getByRole("heading", { level: 1, name: "Tyrannosaurus rex" })).toBeVisible();
+  // The whole evidence article, including collapsed sections and sources, is plain HTML.
+  await expect(page.getByRole("heading", { name: "What scientists know" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sources" })).toBeVisible();
+  await expect(page.locator("#source-bell-2017")).toContainText("Tyrannosauroid integument");
   await context.close();
+});
+
+test("home page lists all five species and marks those without a 3D model", async ({ page }) => {
+  await page.goto("/");
+  const list = page.getByRole("region", { name: "Species" }).getByRole("listitem");
+  await expect(list).toHaveCount(5);
+  await expect(list.filter({ hasText: "Triceratops horridus" })).toContainText("3D model in preparation");
+  await expect(list.filter({ hasText: "Tyrannosaurus rex" })).not.toContainText("3D model in preparation");
+});
+
+test("a species without a model shows its research and a placeholder instead of the viewer", async ({
+  page,
+}) => {
+  await page.goto("/species/triceratops-horridus");
+  await expect(page.getByRole("heading", { level: 1, name: "Triceratops horridus" })).toBeVisible();
+  await expect(page.getByText("3D reconstruction in preparation")).toBeVisible();
+  await expect(page.locator("canvas")).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "First mistaken for a bison" })).toBeVisible();
+});
+
+test("source markers jump to the matching entry in the sources list", async ({ page }) => {
+  await page.goto("/species/stegosaurus-stenops");
+  const marker = page.getByRole("link", { name: /^Source \d+$/ }).first();
+  const target = await marker.getAttribute("href");
+  await marker.click();
+  await expect(page).toHaveURL(new RegExp(`${target}$`));
+  await expect(page.locator(target!)).toBeInViewport();
+});
+
+test("reviewed records are not yet offered to search engines", async ({ page }) => {
+  await page.goto("/species/tyrannosaurus-rex");
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
 });
 
 test("unknown species returns 404", async ({ page }) => {

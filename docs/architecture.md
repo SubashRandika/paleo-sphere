@@ -183,13 +183,13 @@ Species
 │  ├─ age: { minMa, maxMa, stage, citationIds }
 │  ├─ localities[]: { formation, region, country, citationIds }
 │  ├─ measurements: { length | hipHeight | mass:
-│  │     { estimates[]: { min, max, unit, method, citationId } } }
-│  ├─ diet: Claim
-│  ├─ summary, facts[] (3–5), known[], uncertain[]: Claim[]
-│  ├─ discovery: Claim[]
+│  │     { estimates[]: { min, max, unit, method, specimen?, citationId } } }
+│  ├─ diet: enum, dietEvidence: Claim
+│  ├─ summary, facts[] (3–5, Claim + title), known[], uncertain[]: Claim[]
+│  ├─ anatomy[], integument[], behaviour[], habitat[], discovery[]: Claim[]   (Phase 5)
 │  ├─ hotspotNotes[]: { hotspotId, title, body: Claim }
-│  └─ citations[]: { id, authors, year, title, venue, doi?, url, accessed }
-├─ presentation                 ← rendering (becomes ViewerConfig)
+│  └─ citations[]: { id, type, authors, year?, title, venue, volume?, pages?, doi?, url, accessed }
+├─ presentation?                ← rendering (becomes ViewerConfig); absent until a model is prepared
 │  ├─ model: { high, mobile, poster, scaleMetres }
 │  ├─ attribution: { creator, title, sourceUrl, license, licenseUrl, modifications }
 │  ├─ appearanceNotes[]: Claim  (what matches evidence vs inferred)
@@ -206,9 +206,10 @@ Claim = { text, level: 1|2|3|4, citationIds: string[] }
 Notable schema rules (enforced by Zod refinements):
 
 - Every `citationId` must resolve to an entry in `citations`.
-- `minMa >= maxMa`. Ages count backwards, so the older bound is the larger number.
+- `maxMa >= minMa`. Ages count backwards, so the older bound is the larger number.
 - `facts` has a length of 3–5.
-- `published` requires `reviewedOn` and at least one citation per claim.
+- `reviewed` and `published` require `content`, `reviewedOn`, and at least one citation per level 1–3 claim (Phase 5; see §15).
+- A record needs `content`, `presentation`, or both.
 
 **Validation boundary:** at build time. The repository parses every content file; `generateStaticParams` uses it, so invalid content **fails the build**. A Vitest test runs the same parse. No Zod in the client bundle.
 
@@ -303,6 +304,23 @@ Evidence and images: `docs/lookdev/tyrannosaurus-rex.md`.
 | Shadows | Key-light `PCFShadowMap`, 2048², `shadow.autoUpdate = false`, rendered on mount and again when the model is ready; `ShadowMaterial` floor catcher | Self-shadowing was the largest gap vs. Cycles. Static scene → shadow pass runs once. Rendering on mount avoids a WebGL texture/sampler mismatch from sampling a not-yet-rendered map. `PCFSoftShadowMap` was removed in r18x |
 | Lookdev | Dev-only `/dev/lookdev` (404 in production) driven by URL params; `scripts/lookdev.mjs` writes labelled contact sheets; `scripts/blender/reference_render.py` renders the Cycles ground truth | Repeatable visual comparisons for every future species |
 | Regression guard | e2e test fails on any `GL_INVALID…` console message | The shadow/sampler bug produced no visible symptom in screenshots |
+
+## 15. Phase 5 implementation notes (2026-10-16)
+
+Research method and per-claim evidence: `docs/research/`.
+
+| Area | Decision | Why |
+|---|---|---|
+| Model-less species | `presentation` is optional; a record needs content, a model, or both. The page shows `ModelPlaceholder` in place of the viewer, and `toViewerConfig` returns `undefined` | Four of five species have researched content but no prepared model. Showing the science now, instead of a low-quality model, follows CLAUDE.md §5 |
+| Content sections | Added `anatomy`, `integument`, `behaviour`, `habitat` (claim lists); facts gain a `title`; estimates gain an optional `specimen` | Covers the CLAUDE.md §4/§8 topics without a free-form "sections" bag, which would weaken validation |
+| Citations | `type` (article/book/web/database), bare-DOI regex, optional `volume`/`pages`, `year` optional only for web/database | Source tier is visible in the data; undated museum pages are not given an invented year |
+| Review gates | Level 1–3 claims need a source in **any non-draft** record (was: published only). `reviewed` = shown with `noindex`; `published` = indexed, the owner's sign-off | A reviewed page is public, so it must meet the citation rule. `published` stays a deliberate human step |
+| Integrity tests | `repository.test.ts`: every shown claim is cited and every listed source is used. `npm run content:verify` (separate Vitest config, network): every DOI matches Crossref (title, year, first author, author count, volume, first page) and other URLs resolve | Two DOIs recalled from memory pointed to other papers; the check makes that failure mode impossible to ship |
+| Italic names | Content prose may contain `_Name_`; `RichText` renders `<i>`, `plainText` strips it for metadata. The schema rejects unmatched `_` | Scientific names are italic by convention; marking them in the content is explicit, while render-time guessing would italicise "tyrannosaur" or miss "*T. rex*" |
+| Article layout | Aside: summary, quick facts (full spread of estimates, with "How these were estimated" disclosure), model notes. Below: fact cards, Known / Uncertain, collapsed "In depth" `<details>`, evidence key, numbered sources | Progressive disclosure that works without JavaScript; all text is server HTML. Source numbers link to `#source-<id>` |
+| Measurements | The quick fact is the span of **all** estimates (`summariseEstimates`) | Showing one figure would hide real disagreement (e.g. *Stegosaurus* 1.1–3.8 t from two methods on one skeleton) |
+
+Known issue (dev only): Next 16 reports "URL data outside of Suspense" for `/species/[slug]` because the page awaits `params` at the top. It affects instant client-side navigation between species, which arrives with species switching in Phase 6. Fix it then by moving the per-slug content behind a `<Suspense>` boundary (see `node_modules/next/dist/docs/01-app/02-guides/adopting-partial-prefetching.md` § Move URL data behind Suspense).
 
 ## 14. Decisions requested
 

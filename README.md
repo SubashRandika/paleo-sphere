@@ -12,14 +12,21 @@ Independent, non-commercial educational project. Not affiliated with any museum.
 
 ## Commands
 
-| Command          | What it does                                                                                            |
-| ---------------- | ------------------------------------------------------------------------------------------------------- |
-| `npm run dev`    | Development server on http://localhost:3000                                                             |
-| `npm run build`  | Production build. **Fails if any species content file is invalid.**                                     |
-| `npm run check`  | Typecheck, lint, format check, unit tests                                                               |
-| `npm test`       | Unit and component tests (Vitest)                                                                       |
-| `npm run e2e`    | End-to-end tests (Playwright, against a production build). First run: `npx playwright install chromium` |
-| `npm run format` | Format all files (Prettier)                                                                             |
+| Command                  | What it does                                                                                            |
+| ------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `npm run dev`            | Development server on http://localhost:3000                                                             |
+| `npm run build`          | Production build. **Fails if any species content file is invalid.**                                     |
+| `npm run check`          | Typecheck, lint, format check, unit tests                                                               |
+| `npm test`               | Unit and component tests (Vitest)                                                                       |
+| `npm run e2e`            | End-to-end tests (Playwright, against a production build). First run: `npx playwright install chromium` |
+| `npm run format`         | Format all files (Prettier)                                                                             |
+| `npm run content:verify` | Network check of every species citation against Crossref (DOIs) or the live URL                         |
+
+## Species content
+
+One TypeScript file per species in `src/content/species/`, validated by the Zod schema in `src/domain/species/schema.ts`; an invalid file fails the build. Every claim carries an evidence level (1 fossil evidence … 4 artistic interpretation) and cites sources listed in the same file. Write scientific names as `_Tyrannosaurus rex_` to italicise them.
+
+Before a record leaves `draft`: research it as described in [docs/research/README.md](docs/research/README.md), record the per-claim checks in `docs/research/<slug>.md`, then run `npm test` and `npm run content:verify`.
 
 ## 3D asset pipeline
 
