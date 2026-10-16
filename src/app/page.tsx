@@ -27,11 +27,13 @@ export default function HomePage() {
                 href={`/species/${s.slug}`}
                 className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-1 py-4 hover:bg-surface"
               >
-                <span className="font-display text-2xl italic">{s.scientificName}</span>
-                <span className="flex items-baseline gap-4">
-                  {!s.presentation && <span className="label">Text only · 3D model in preparation</span>}
-                  <span className="font-mono text-xs text-muted">{s.authority}</span>
+                <span className="space-y-1">
+                  <span className="block font-display text-2xl italic">{s.scientificName}</span>
+                  {!s.presentation && (
+                    <span className="label block">Text only · 3D model in preparation</span>
+                  )}
                 </span>
+                <span className="font-mono text-xs whitespace-nowrap text-muted">{s.authority}</span>
               </Link>
             </li>
           ))}

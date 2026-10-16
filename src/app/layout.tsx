@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Newsreader } from "next/font/google";
+import { DEFAULT_THEME, THEME_COLOR, THEME_INIT_SCRIPT } from "@/lib/theme";
 import { SiteFooter } from "@/ui/SiteFooter";
 import { SiteHeader } from "@/ui/SiteHeader";
 import "./globals.css";
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#121417",
+  themeColor: THEME_COLOR[DEFAULT_THEME],
   colorScheme: "dark light",
 };
 
@@ -39,9 +40,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      data-theme="dark"
+      data-theme={DEFAULT_THEME}
       className={`${newsreader.variable} ${plexSans.variable} ${plexMono.variable} h-full antialiased`}
+      // THEME_INIT_SCRIPT may change data-theme before React hydrates; that difference is intended.
+      suppressHydrationWarning
     >
+      <head>
+        {/* Applies a stored light/dark choice before first paint (no theme flash). See src/lib/theme.ts. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="flex min-h-full flex-col">
         <a
           href="#main"

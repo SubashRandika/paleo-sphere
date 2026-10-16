@@ -24,7 +24,14 @@ Data colours (strata rail and period chips only; ICS standard):
 | Jurassic | `#34B2C9` |
 | Cretaceous | `#7FC64E` |
 
-Light theme inverts to bone background / shale text with the same accent.
+Light theme inverts to bone background / shale text with a darkened accent (`#8F6210`).
+
+### Light theme (added before Phase 6, 2026-10-16)
+
+- **Default:** dark. A sun/moon button in the header switches theme. The choice is stored in `localStorage` and applied by an inline script before first paint, so there is no flash. Without JavaScript the site stays dark and the button is not rendered.
+- **Contrast on bone `#E6E1D6`:** ink 14.2:1, muted 5.5:1 (AA for body text), accent 4.1:1, so the accent is for focus rings and rules only, never small text.
+- **3D stage:** the transparent canvas shows the page background; the floor light pool switches from bone-tinted to white. Specimen lighting is unchanged, so the model looks the same in both themes.
+- **Phase 6 note:** the ICS period colours are too light for text or thin lines on bone (Cretaceous 1.6:1, Jurassic 1.9:1). In the light theme, use them only as filled bands with ink labels.
 
 ## Typography
 

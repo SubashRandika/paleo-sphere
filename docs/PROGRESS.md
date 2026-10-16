@@ -44,6 +44,7 @@
   - [x] 5.4 Article UI: quick facts with estimate breakdown, fact cards, Known / Uncertain, collapsible In depth, evidence key, numbered sources; placeholder for species without a model
   - [x] Verified: 81 unit/component tests, 28 e2e tests (desktop + Pixel 7), typecheck, lint, format
   - [ ] 5.5 Your review → set accepted records to `published` (removes `noindex`)
+- [x] Light theme (your request, 2026-10-16): header toggle, stored choice, no-flash init script, theme-aware 3D floor; contrast checked (`design-direction.md`)
 - [ ] Phase 6 — Complete species explorer
 - [ ] Phase 7 — Habitat and cinematic presentation
 - [ ] Phase 8 — Quality, accessibility, and optimization
@@ -76,6 +77,7 @@
 | 2026-10-16 | *Stegosaurus stenops* (not *S. armatus*). | ICZN Opinion 2320 (2013) made *S. stenops* the type species. |
 | 2026-10-16 | Bibliographic data come from Crossref, never memory; checked by `content:verify`. | Two DOIs recalled from memory were wrong. |
 | 2026-10-16 | Phase 5 decisions. | See `architecture.md` §15. |
+| 2026-10-16 | Light theme: dark stays the default; the visitor's choice is stored. | CLAUDE.md §10 "dark-first … optional light theme". Following the OS setting instead is a one-line change in `THEME_INIT_SCRIPT`. |
 
 ## Assumptions
 

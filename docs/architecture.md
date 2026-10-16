@@ -320,6 +320,8 @@ Research method and per-claim evidence: `docs/research/`.
 | Article layout | Aside: summary, quick facts (full spread of estimates, with "How these were estimated" disclosure), model notes. Below: fact cards, Known / Uncertain, collapsed "In depth" `<details>`, evidence key, numbered sources | Progressive disclosure that works without JavaScript; all text is server HTML. Source numbers link to `#source-<id>` |
 | Measurements | The quick fact is the span of **all** estimates (`summariseEstimates`) | Showing one figure would hide real disagreement (e.g. *Stegosaurus* 1.1–3.8 t from two methods on one skeleton) |
 
+Light theme (added after Phase 5): `src/lib/theme.ts` (constants, `applyTheme`, `THEME_INIT_SCRIPT`), `src/lib/use-theme.ts` (`useSyncExternalStore` over a `MutationObserver` on `<html data-theme>`), and `src/ui/ThemeToggle.tsx`. The root layout renders `data-theme="dark"` with `suppressHydrationWarning`, because the inline script may change it before hydration. Components use only semantic tokens; the one canvas-side consumer is `StageFloor`, which rebuilds its 256 px pool texture when the theme changes.
+
 Known issue (dev only): Next 16 reports "URL data outside of Suspense" for `/species/[slug]` because the page awaits `params` at the top. It affects instant client-side navigation between species, which arrives with species switching in Phase 6. Fix it then by moving the per-slug content behind a `<Suspense>` boundary (see `node_modules/next/dist/docs/01-app/02-guides/adopting-partial-prefetching.md` § Move URL data behind Suspense).
 
 ## 14. Decisions requested
