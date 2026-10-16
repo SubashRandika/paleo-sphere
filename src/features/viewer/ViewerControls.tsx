@@ -9,6 +9,8 @@ type Props = {
   /** Presentation modes the species supports; the switch appears when there is more than studio. */
   modes?: ViewerConfig["modes"];
   fullscreen: { supported: boolean; active: boolean; toggle(): void };
+  /** The species' looping clip, if it has one: adds Play/Pause. */
+  animation?: ViewerConfig["animation"];
 };
 
 /**
@@ -17,10 +19,11 @@ type Props = {
  */
 const MODE_LABELS: Record<ViewerMode, string> = { studio: "Studio", anatomy: "Anatomy" };
 
-export function ViewerControls({ presets, modes = ["studio"], fullscreen }: Props) {
+export function ViewerControls({ presets, modes = ["studio"], fullscreen, animation }: Props) {
   const ready = useViewerStore((s) => s.status === "ready");
   const mode = useViewerStore((s) => s.mode);
-  const { zoom, reset, goTo, setMode } = useViewerStore.getState();
+  const playing = useViewerStore((s) => s.playing);
+  const { zoom, reset, goTo, setMode, setPlaying } = useViewerStore.getState();
   const available = (Object.keys(MODE_LABELS) as ViewerMode[]).filter((m) => modes.includes(m));
 
   return (
@@ -45,6 +48,19 @@ export function ViewerControls({ presets, modes = ["studio"], fullscreen }: Prop
               </button>
             ))}
           </div>
+          <span aria-hidden="true" className="mx-1 h-5 w-px bg-rule" />
+        </>
+      )}
+      {animation && (
+        <>
+          <IconButton
+            label={playing ? "Pause animation" : "Play animation"}
+            // Markers sit on the rest pose, so the clip only plays in studio mode.
+            disabled={!ready || mode !== "studio"}
+            onClick={() => setPlaying(!playing)}
+          >
+            {playing ? <path d="M9 5v14M15 5v14" /> : <path d="M8 5.5v13l10.5-6.5z" />}
+          </IconButton>
           <span aria-hidden="true" className="mx-1 h-5 w-px bg-rule" />
         </>
       )}

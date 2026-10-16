@@ -220,6 +220,14 @@ describe("speciesSchema", () => {
     expect(messages(s)).toEqual([]);
   });
 
+  it("accepts an optional animation clip, named as in the model file", () => {
+    const s = draft();
+    s.presentation!.animation = { clip: "Idle" };
+    expect(messages(s)).toEqual([]);
+    s.presentation!.animation = { clip: "" };
+    expect(messages(s)).not.toEqual([]);
+  });
+
   it("rejects camera limits where min ≥ max", () => {
     const s = draft();
     s.presentation!.camera.limits = { minDistance: 10, maxDistance: 5, maxPolarAngle: 1.4 };

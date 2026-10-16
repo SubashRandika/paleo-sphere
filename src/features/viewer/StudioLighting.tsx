@@ -1,7 +1,7 @@
 "use client";
 
 import { Environment, Lightformer } from "@react-three/drei";
-import { useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import type { DirectionalLight } from "three";
 import type { RenderSettings } from "./render-settings";
@@ -20,6 +20,7 @@ type Props = Pick<RenderSettings, "environmentIntensity" | "keyLightIntensity" |
  * The key light casts a real shadow (self-shadowing on the body and a cast shadow on the floor).
  * The specimen and the lights never move, so the shadow map is rendered ONCE when the model is
  * ready (shadow.autoUpdate = false) — orbiting the camera costs only the shadow lookup in the shader.
+ * Only while an animation plays is the shadow map re-rendered every frame, and once more when it stops.
  * Phase 4 lookdev showed self-shadowing was the largest gap against the Cycles reference.
  */
 export function StudioLighting({ environmentIntensity, keyLightIntensity, shadows }: Props) {
@@ -60,15 +61,22 @@ export function StudioLighting({ environmentIntensity, keyLightIntensity, shadow
 function KeyLight({ intensity, castShadow }: { intensity: number; castShadow: boolean }) {
   const light = useRef<DirectionalLight>(null);
   const ready = useViewerStore((s) => s.status === "ready");
+  const playing = useViewerStore((s) => s.playing);
+  const mode = useViewerStore((s) => s.mode);
   const invalidate = useThree((s) => s.invalidate);
 
   // Render the shadow map on mount (so it exists before any shadow-receiving material samples it —
-  // otherwise WebGL reports a texture/sampler mismatch), and once more when the model is ready.
+  // otherwise WebGL reports a texture/sampler mismatch), once more when the model is ready, and
+  // after the pose stops changing (pause, or the rest pose on leaving studio mode).
   useEffect(() => {
     if (!light.current) return;
     light.current.shadow.needsUpdate = true;
     invalidate();
-  }, [ready, invalidate]);
+  }, [ready, playing, mode, invalidate]);
+
+  useFrame(() => {
+    if (playing && light.current) light.current.shadow.needsUpdate = true;
+  });
 
   return (
     <directionalLight

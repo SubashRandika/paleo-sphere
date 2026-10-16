@@ -1,0 +1,76 @@
+{
+  "comment": "Stress poses for the T. rex rig test. Bone-local XYZ degrees: +Z turns (yaw), -X raises (pitch up); jaw -X closes. Verified by render 2026-10-16.",
+  "views": {
+    "threeQuarter": {
+      "position": [12.5, 4.6, 11],
+      "target": [0, 2.9, 0.4]
+    },
+    "head": {
+      "position": [5, 4.4, 9.5],
+      "target": [0, 3.5, 5]
+    },
+    "top": {
+      "position": [0.5, 18, 0.5],
+      "target": [0, 2, 0]
+    }
+  },
+  "poses": {
+    "rest": {},
+    "neckTurn": {
+      "neck1": {
+        "rot": [0, 0, 10]
+      },
+      "neck2": {
+        "rot": [0, 0, 12]
+      },
+      "head": {
+        "rot": [0, 0, 10]
+      }
+    },
+    "tailCurve": {
+      "tail1": {
+        "rot": [0, 0, 5]
+      },
+      "tail2": {
+        "rot": [0, 0, 6]
+      },
+      "tail3": {
+        "rot": [0, 0, 7]
+      },
+      "tail4": {
+        "rot": [0, 0, 8]
+      },
+      "tail5": {
+        "rot": [0, 0, 8]
+      },
+      "tail6": {
+        "rot": [0, 0, 8]
+      },
+      "tail7": {
+        "rot": [0, 0, 8]
+      }
+    },
+    "breathIn": {
+      "spine2": {
+        "scale": [1.05, 1.0, 1.05]
+      },
+      "spine3": {
+        "scale": [1.03, 1.0, 1.03]
+      }
+    },
+    "headUpJawPartlyClosed": {
+      "neck1": {
+        "rot": [-6, 0, 0]
+      },
+      "neck2": {
+        "rot": [-6, 0, 0]
+      },
+      "head": {
+        "rot": [-6, 0, 0]
+      },
+      "jaw": {
+        "rot": [-8, 0, 0]
+      }
+    }
+  }
+}

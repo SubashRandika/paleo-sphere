@@ -78,3 +78,31 @@ test("without WebGL 2 the page explains why and keeps the poster and text", asyn
   await expect(stage(page).locator("img")).toBeVisible();
   await expect(page.getByRole("heading", { level: 1, name: "Tyrannosaurus rex" })).toBeVisible();
 });
+
+test("the idle animation plays on request, says it is interpretation, and stops for anatomy", async ({
+  page,
+}) => {
+  const problems: string[] = [];
+  page.on("pageerror", (error) => problems.push(String(error)));
+  page.on("console", (message) => {
+    if (/GL_INVALID|WebGL: |THREE\.WebGLProgram/.test(message.text())) problems.push(message.text());
+  });
+
+  await page.goto(PAGE);
+  await expect(stage(page)).toHaveAttribute("data-viewer-state", "ready", { timeout: 60_000 });
+  // Nothing moves until the visitor asks.
+  await expect(stage(page).getByText(/artistic interpretation/)).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Play animation" }).click();
+  await expect(stage(page).getByText("Motion is artistic interpretation")).toBeVisible();
+  await page.waitForTimeout(1000);
+  await page.getByRole("button", { name: "Pause animation" }).click();
+  await expect(stage(page).getByText(/artistic interpretation/)).toHaveCount(0);
+  await page.getByRole("button", { name: "Play animation" }).click();
+
+  await page.getByRole("button", { name: "Anatomy" }).click();
+  await expect(page.getByRole("button", { name: "Play animation" })).toBeDisabled();
+  await expect(stage(page).getByText(/artistic interpretation/)).toHaveCount(0);
+  await expect(stage(page)).toHaveAttribute("data-viewer-state", "ready");
+  expect(problems).toEqual([]);
+});

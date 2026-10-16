@@ -6,7 +6,7 @@
 - **Phase:** 4 — Realism and asset pipeline (implemented 2026-10-16)
 - **Phase:** 5 — Scientific species content (approved 2026-10-16; records published)
 - **Phase:** 6 — Complete species explorer (in progress)
-- **Task:** 6.5 remaining models + fossil scans, **waiting for your Sketchfab downloads** into `assets-src/<name>/`; Task 3.6 still open
+- **Task:** *T. rex* idle animation done (2026-10-17); 6.5 remaining models + fossil scans, **waiting for your Sketchfab downloads** into `assets-src/<name>/`; Task 3.6 still open
 - **Next recommended action:** Download the six models listed under Phase 6 → 6.5; Claude then prepares, builds and reviews each one.
 
 ## Phase checklist
@@ -53,6 +53,8 @@
   - [x] 6.4 Anatomy mode: 5 *T. rex* hotspots (Blender ray-cast positions, cited notes), mode switch, DOM markers, note card
   - [ ] 6.5 Models for *Triceratops*, *Stegosaurus*, *Mamenchisaurus*, *Allosaurus* + fossil scans (*Triceratops* skeleton, *T. rex* skull cast), **blocked on downloads** (Sketchfab requires a logged-in account): Triceratops (D.art), Stegosaurus (PusztaiAndras), Mamen River Dragon (D.art), Animated Allosaurus (AneesAnimates), Triceratops horridus Marsh (Smithsonian, CC0), T. rex skull MOTE (CC0), glTF format, one folder each under `assets-src/`
   - [x] 6.6 `docs/adding-a-species.md`; tests: 107 unit/component, 42 e2e (desktop + Pixel 7)
+  - [x] Rig test for the *T. rex* idle animation (your request): **passed** for moderate motion, see `lookdev/tyrannosaurus-rex-rig.md`
+  - [x] *T. rex* idle animation: 12 s looping clip, Play/Pause in the toolbar, caption + level-4 note, CC BY modification recorded (`architecture.md` §17). A synthesised breathing sound was tried and removed at your review (not realistic enough)
 - [ ] Phase 7 — Habitat and cinematic presentation
 - [ ] Phase 8 — Quality, accessibility, and optimization
 - [ ] Phase 9 — Deployment and release
@@ -87,6 +89,8 @@
 | 2026-10-16 | All five species records `published`. | Your approval of Phase 5. |
 | 2026-10-16 | Species pages use `instant = false` instead of `<Suspense>` around `params`. | Suspense hid the article from no-JS visitors; see `architecture.md` §16. |
 | 2026-10-16 | Phase 6 decisions. | See `architecture.md` §16. |
+| 2026-10-17 | Idle animation has no sound. | Your review: the synthesised breathing did not sound realistic. A call would contradict the fixed open mouth and the idle never steps, so no sound beats an unconvincing one |
+| 2026-10-16 | Idle animation decisions. | See `architecture.md` §17. |
 | 2026-10-16 | Light theme: dark stays the default; the visitor's choice is stored. | CLAUDE.md §10 "dark-first … optional light theme". Following the OS setting instead is a one-line change in `THEME_INIT_SCRIPT`. |
 
 ## Assumptions
@@ -108,10 +112,11 @@
 
 ## Known limitations
 
-- *T. rex* model is static (no rig) and not life-size in source.
+- *T. rex* rig suits only small, slow motion: no walk cycle, and the mouth cannot close (sculpted open). Source model is not life-size (scaled in preparation).
+- Anatomy-mode camera moves run at ~30 fps (median 33 ms) on an integrated Radeon 860M, with the static model as well as the rigged one: each of the 5 markers raycasts the whole model on every frame. Fix proposed for Phase 8: test occlusion only when the camera settles, or against a low-poly stand-in.
 - Free-only assets: game-ready sculpts (~10k–100k faces), not film-grade.
 - WebKit (Safari) not yet in the Playwright matrix; add before Phase 8.
-- Viewer tested only on SwiftShader (CPU WebGL) and device emulation — no real-GPU frame-rate data yet.
+- Real-GPU frame-rate data from one laptop only (AMD Radeon 860M, Chrome); no phone measurements yet (Task 3.6).
 - Web fonts total 331 KB; optimise in Phase 8 (`perf.md`).
 - Source model: no lip tissue (labelled, level 3), a UV seam on the flank, fixed open-mouth pose, 2014 sculpt. Hands are correct (Phase 5).
 - Content was reviewed by the project (Claude), not by a paleontologist. Paywalled papers were checked against abstracts only (`docs/research/README.md`).

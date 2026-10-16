@@ -53,7 +53,7 @@ export default function Scene({ config, settings = STUDIO_SETTINGS, modelUrl }: 
     }),
     [settings.toneMapping, settings.exposure],
   );
-  const model = useRef<Object3D>(null);
+  const occluder = useRef<Object3D>(null);
   const setStatus = useViewerStore((s) => s.setStatus);
   const setRetry = useViewerStore((s) => s.setRetry);
 
@@ -96,29 +96,48 @@ export default function Scene({ config, settings = STUDIO_SETTINGS, modelUrl }: 
           */}
         <ViewerErrorBoundary key={url} onError={handleError}>
           <Suspense fallback={null}>
-            <SpeciesModel ref={model} url={url} disabledMaps={settings.disabledMaps} />
-            <Hotspots hotspots={config.hotspots} occluder={model} />
+            <SpeciesModel
+              occluder={occluder}
+              url={url}
+              disabledMaps={settings.disabledMaps}
+              animation={config.animation}
+            />
+            <Hotspots hotspots={config.hotspots} occluder={occluder} />
             {/*
-              Soft occlusion shadow under the feet, rendered once after the model mounts.
+              Soft occlusion shadow under the feet, rendered once after the model mounts and again for
+              every pose change (see GroundShadow).
               Must sit at or slightly BELOW y = 0: Drei's blur passes draw a plane at world y = 0 through
               a shadow camera placed at this position, looking up with near = 0. Any positive y puts that
               plane behind the camera and the blur output is empty. The floor draws first (renderOrder),
               so the shadow still composites on top of it.
             */}
-            <ContactShadows
-              position={[0, -0.001, 0]}
-              scale={30}
-              resolution={1024}
-              blur={2.4}
-              far={6}
-              opacity={0.85}
-              frames={1}
-            />
+            <GroundShadow />
           </Suspense>
         </ViewerErrorBoundary>
         <CameraRig camera={config.camera} hotspots={config.hotspots} />
       </Canvas>
     </>
+  );
+}
+
+/**
+ * ContactShadows renders `frames` frames after each React render, then stops. While the clip plays
+ * it must follow the moving tail and head (frames = Infinity); any change of `playing` or `mode`
+ * re-renders this component, which renders one more frame for the pose the model stopped in.
+ */
+function GroundShadow() {
+  const playing = useViewerStore((s) => s.playing);
+  useViewerStore((s) => s.mode);
+  return (
+    <ContactShadows
+      position={[0, -0.001, 0]}
+      scale={30}
+      resolution={1024}
+      blur={2.4}
+      far={6}
+      opacity={0.85}
+      frames={playing ? Infinity : 1}
+    />
   );
 }
 

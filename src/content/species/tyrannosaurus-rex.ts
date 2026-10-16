@@ -582,6 +582,7 @@ export const tyrannosaurusRex: SpeciesInput = {
         "material converted from specular-glossiness to metallic-roughness",
         "textures resized and re-encoded",
         "geometry compressed",
+        "rigged with a skeleton and given a looping idle animation",
       ],
     },
     appearanceNotes: [
@@ -605,6 +606,11 @@ export const tyrannosaurusRex: SpeciesInput = {
         level: 4,
         citationIds: [],
       },
+      {
+        text: "The idle animation is an artistic interpretation. The movements are deliberately small and slow; their timing is not based on fossil evidence.",
+        level: 4,
+        citationIds: [],
+      },
     ],
     // Model is life-size: 12 m long (z −6 → +6, head toward +z), 4.2 m tall, eyes ≈ 3.7 m up.
     camera: {
@@ -617,6 +623,8 @@ export const tyrannosaurusRex: SpeciesInput = {
       limits: { minDistance: 2, maxDistance: 45, maxPolarAngle: 1.5 },
     },
     modes: ["studio", "anatomy"],
+    // Clip from scripts/blender/animate_idle.py (spec: scripts/blender/rigs/tyrannosaurus-rex-idle.json).
+    animation: { clip: "Idle" },
     // Surface points from scripts/blender/surface_points.py (ray casts against the prepared GLB, 2026-10-16).
     hotspots: [
       {

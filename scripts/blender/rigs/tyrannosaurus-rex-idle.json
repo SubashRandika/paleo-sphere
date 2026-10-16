@@ -1,0 +1,55 @@
+{
+  "comment": "Idle loop for the T. rex rig (scripts/blender/animate_idle.py). Seconds and bone-local XYZ degrees, conventions as in tyrannosaurus-rex-poses.json: +yaw turns toward the animal's left, -pitch raises, jaw -pitch closes. Amplitudes stay inside the range the rig test passed (docs/lookdev/tyrannosaurus-rex-rig.md).",
+  "name": "Idle",
+  "fps": 30,
+  "duration": 12,
+  "breaths": [
+    { "start": 0.2, "inhale": 2.0, "hold": 0.3, "exhale": 2.9 },
+    { "start": 6.2, "inhale": 2.0, "hold": 0.3, "exhale": 2.9 }
+  ],
+  "breathing": {
+    "comment": "Rib cage widens and deepens on the inhale. spine3 takes the inverse scale so the neck, head and arms keep their size.",
+    "bone": "spine2",
+    "compensate": "spine3",
+    "scale": [0.045, 0, 0.045],
+    "headPitch": -1.2
+  },
+  "look": {
+    "comment": "Total neck + head turn, shared between bones by weight. Keys are [time, yaw, pitch], eased between.",
+    "weights": { "spine3": 0.1, "neck1": 0.3, "neck2": 0.3, "head": 0.3 },
+    "keys": [
+      [0, 0, 0],
+      [1.2, 0, 0],
+      [3.2, 13, -3],
+      [5.2, 13, -3],
+      [7.0, 0, 0],
+      [8.0, 0, 0],
+      [9.6, -7, 1.5],
+      [10.9, -7, 1.5],
+      [12, 0, 0]
+    ]
+  },
+  "jaw": {
+    "comment": "Keys are [time, pitch]: a slight closing while looking left, a slight opening on the second exhale.",
+    "bone": "jaw",
+    "keys": [
+      [0, 0],
+      [2.6, 0],
+      [3.6, -4],
+      [5.0, -4],
+      [6.3, 0],
+      [8.6, 0],
+      [9.5, 2.5],
+      [10.8, 2.5],
+      [11.7, 0],
+      [12, 0]
+    ]
+  },
+  "tail": {
+    "comment": "A slow side-to-side wave that travels toward the tip (phase lag per bone), with a small lift twice per loop.",
+    "bones": ["tail1", "tail2", "tail3", "tail4", "tail5", "tail6", "tail7"],
+    "yaw": [1.2, 1.6, 2.0, 2.4, 2.8, 3.0, 3.2],
+    "pitch": 0.5,
+    "lag": 0.35
+  }
+}

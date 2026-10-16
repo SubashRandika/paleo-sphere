@@ -2,10 +2,13 @@
 
 import { useGLTF } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { useEffect, type Ref } from "react";
-import { Mesh, type Material, type Object3D, type Texture } from "three";
+import { useEffect, useImperativeHandle, useMemo, type Ref } from "react";
+import { Mesh, SkinnedMesh, type Material, type Object3D, type Texture } from "three";
+import type { ViewerConfig } from "@/domain/species/viewer-config";
 import { disposeObject } from "@/lib/three/dispose";
 import { getKTX2Loader } from "@/lib/three/ktx2";
+import { ModelAnimation } from "./ModelAnimation";
+import { createOcclusionProxy } from "./occlusion-proxy";
 import type { MapSlot } from "./render-settings";
 import { useViewerStore } from "./viewer-store";
 
@@ -20,8 +23,10 @@ type Props = {
   url: string;
   /** Lookdev only: switch off texture maps to see what each contributes. */
   disabledMaps?: MapSlot[];
-  /** The loaded scene, e.g. for hotspot occlusion. */
-  ref?: Ref<Object3D>;
+  /** What anatomy markers raycast against to hide behind the body (see occlusion-proxy.ts). */
+  occluder?: Ref<Object3D>;
+  /** The looping clip to offer, when the model file has one. */
+  animation?: ViewerConfig["animation"];
 };
 
 /**
@@ -31,9 +36,9 @@ type Props = {
  * the loading state. The asset is already life-size, centred, and standing on y = 0
  * (scripts/blender/prepare_model.py), so no runtime centring is needed.
  */
-export function SpeciesModel({ url, disabledMaps, ref }: Props) {
+export function SpeciesModel({ url, disabledMaps, occluder, animation }: Props) {
   const gl = useThree((s) => s.gl);
-  const { scene } = useGLTF(url, USE_DRACO, USE_MESHOPT, (loader) => {
+  const { scene, animations } = useGLTF(url, USE_DRACO, USE_MESHOPT, (loader) => {
     // KTX2 textures (KHR_texture_basisu). Drei's GLTFLoader comes from three-stdlib, whose
     // types expect its own KTX2Loader; three's loader has the same runtime interface.
     loader.setKTX2Loader(getKTX2Loader(gl) as unknown as Parameters<typeof loader.setKTX2Loader>[0]);
@@ -42,6 +47,9 @@ export function SpeciesModel({ url, disabledMaps, ref }: Props) {
   const rootScene = useThree((s) => s.scene);
   const invalidate = useThree((s) => s.invalidate);
   const setStatus = useViewerStore((s) => s.setStatus);
+  // Built on load, while the model is still in its rest pose.
+  const proxy = useMemo(() => createOcclusionProxy(scene), [scene]);
+  useImperativeHandle(occluder, () => proxy, [proxy]);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,6 +67,10 @@ export function SpeciesModel({ url, disabledMaps, ref }: Props) {
       // Self-shadowing: arms shade the chest, the body shades the legs (rendered once, see StudioLighting).
       node.castShadow = true;
       node.receiveShadow = true;
+      // three culls with a bounding sphere computed once, in whatever pose the mesh had then. An
+      // animated mesh moves outside it, so it could vanish at the frame edge; there is only one model
+      // in view, so skipping the test costs nothing.
+      if (node instanceof SkinnedMesh) node.frustumCulled = false;
       const material = node.material as Material & Record<string, unknown>;
       for (const slot of disabledMaps ?? []) {
         if (material[slot]) {
@@ -93,7 +105,9 @@ export function SpeciesModel({ url, disabledMaps, ref }: Props) {
 
     return () => {
       cancelled = true;
-      setStatus("loading");
+      // Back to "loading" for the next model, but never over "error": when a render error unmounts
+      // this model, the boundary has already reported it and the visitor needs the retry message.
+      if (useViewerStore.getState().status !== "error") setStatus("loading");
       // Free GPU memory when the species changes or the viewer unmounts — but on the next tick.
       // React Strict Mode (development) simulates unmount + remount synchronously; disposing
       // immediately would destroy a model that is about to be shown again. A remount of the same
@@ -109,5 +123,10 @@ export function SpeciesModel({ url, disabledMaps, ref }: Props) {
     };
   }, [scene, rootScene, gl, camera, invalidate, setStatus, url, disabledMaps]);
 
-  return <primitive ref={ref} object={scene} />;
+  return (
+    <>
+      <primitive object={scene} />
+      {animation && <ModelAnimation root={scene} clips={animations} animation={animation} />}
+    </>
+  );
 }

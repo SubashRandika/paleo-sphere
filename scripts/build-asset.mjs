@@ -9,6 +9,8 @@
  * Steps (see docs/architecture.md §4):
  *  - Drop KHR_materials_specular / KHR_materials_ior. They add a full-size texture and force
  *    MeshPhysicalMaterial; skin is a dielectric, so three's default F0 (0.04) is a sound baseline.
+ *  - resample: drop animation keys that linear interpolation reproduces anyway (constant
+ *    channels on bones an idle clip leaves still, straight runs). No-op for static models.
  *  - dedup / prune / weld: remove duplicate and unused data, merge identical vertices.
  *  - Textures, resized to the variant's maximum:
  *      ktx2 (default): base colour / occlusion / roughness → KTX2 ETC1S: stays compressed in GPU
@@ -25,7 +27,7 @@ import { parseArgs } from "node:util";
 import { Mode, toktx } from "@gltf-transform/cli";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
-import { dedup, meshopt, prune, textureCompress, weld } from "@gltf-transform/functions";
+import { dedup, meshopt, prune, resample, textureCompress, weld } from "@gltf-transform/functions";
 import { MeshoptDecoder, MeshoptEncoder } from "meshoptimizer";
 import sharp from "sharp";
 
@@ -136,6 +138,7 @@ for (const name of variants) {
 
   const max = VARIANTS[name];
   await doc.transform(
+    resample(),
     dedup(),
     prune(),
     weld(),
@@ -152,6 +155,11 @@ for (const name of variants) {
     file,
     downloadMB: +((await stat(file)).size / 1e6).toFixed(2),
     estGpuTextureMB: estimateGpuMB(doc),
+    animations: doc
+      .getRoot()
+      .listAnimations()
+      .map((a) => a.getName())
+      .join(", "),
     textures: doc
       .getRoot()
       .listTextures()

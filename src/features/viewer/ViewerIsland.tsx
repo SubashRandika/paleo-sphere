@@ -32,11 +32,30 @@ export function ViewerIsland({ config }: { config: ViewerConfig }) {
   const progress = useViewerStore((s) => s.progress);
   const retry = useViewerStore((s) => s.retry);
   const setAnimate = useViewerStore((s) => s.setAnimate);
+  const playing = useViewerStore((s) => s.playing);
   // Remember which poster failed rather than a boolean, so switching species tries the new one.
   const [failedPoster, setFailedPoster] = useState<string | null>(null);
   const posterFailed = failedPoster === config.model.poster;
 
   useEffect(() => setAnimate(!reducedMotion), [reducedMotion, setAnimate]);
+
+  // Pause when nobody can see it: a hidden tab, or the stage scrolled out of view (mobile layout).
+  // Otherwise the GPU keeps rendering for an animal no one is watching.
+  useEffect(() => {
+    if (!playing) return;
+    const pause = () => useViewerStore.getState().setPlaying(false);
+    const onVisibility = () => document.hidden && pause();
+    document.addEventListener("visibilitychange", onVisibility);
+    const observer =
+      typeof IntersectionObserver === "undefined"
+        ? null
+        : new IntersectionObserver(([entry]) => entry && !entry.isIntersecting && pause());
+    if (stage.current) observer?.observe(stage.current);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      observer?.disconnect();
+    };
+  }, [playing]);
 
   const state: ViewerState = webgl === null ? "checking" : webgl ? status : "unsupported";
 
@@ -101,12 +120,21 @@ export function ViewerIsland({ config }: { config: ViewerConfig }) {
       <StatusMessage state={state} progress={progress} onRetry={retry} />
 
       <div className="pointer-events-none absolute inset-x-0 bottom-4 flex flex-col items-center gap-2 px-4">
+        {/* The motion is not evidence; say so while it plays. */}
+        <p aria-live="polite" className="text-center">
+          {playing && config.animation && (
+            <span className="inline-block rounded-full bg-surface/85 px-3 py-1 text-xs text-ink backdrop-blur">
+              Motion is artistic interpretation
+            </span>
+          )}
+        </p>
         {webgl && (
           <div className="pointer-events-auto">
             <ViewerControls
               presets={config.camera.presets}
               modes={config.modes}
               fullscreen={{ ...fullscreen, toggle: toggleFullscreen }}
+              animation={config.animation}
             />
           </div>
         )}

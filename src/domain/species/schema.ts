@@ -188,6 +188,16 @@ export const presentationSchema = z.strictObject({
   hotspots: z.array(
     z.strictObject({ id, label: z.string().min(1).max(32), position: vec3, view: cameraViewSchema }),
   ),
+  /**
+   * A looping clip stored in the model file (e.g. an idle). Offered with a play button, never
+   * autoplayed. The motion is artistic interpretation; say so in appearanceNotes.
+   */
+  animation: z
+    .strictObject({
+      /** Animation name inside the GLB. */
+      clip: z.string().min(1),
+    })
+    .optional(),
   habitatId: id.optional(),
   fossil: z
     .strictObject({

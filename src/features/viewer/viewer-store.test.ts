@@ -36,6 +36,7 @@ beforeEach(() => {
     hotspots: [],
     mode: "studio",
     hotspot: null,
+    playing: false,
   });
 });
 
@@ -136,5 +137,29 @@ describe("viewer store anatomy mode", () => {
     useViewerStore.getState().selectHotspot("tail");
     expect(useViewerStore.getState().hotspot).toBeNull();
     expect(c.setLookAt).not.toHaveBeenCalled();
+  });
+});
+
+describe("viewer store animation", () => {
+  it("plays and pauses in studio mode", () => {
+    useViewerStore.getState().setPlaying(true);
+    expect(useViewerStore.getState().playing).toBe(true);
+    useViewerStore.getState().setPlaying(false);
+    expect(useViewerStore.getState().playing).toBe(false);
+  });
+
+  it("stops when leaving studio mode and will not start outside it (markers need the rest pose)", () => {
+    useViewerStore.getState().attach(fakeController(), camera);
+    useViewerStore.getState().setPlaying(true);
+    useViewerStore.getState().setMode("anatomy");
+    expect(useViewerStore.getState().playing).toBe(false);
+    useViewerStore.getState().setPlaying(true);
+    expect(useViewerStore.getState().playing).toBe(false);
+  });
+
+  it("starts each species still", () => {
+    useViewerStore.setState({ playing: true });
+    useViewerStore.getState().attach(fakeController(), camera);
+    expect(useViewerStore.getState().playing).toBe(false);
   });
 });

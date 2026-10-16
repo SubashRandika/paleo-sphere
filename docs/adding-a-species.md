@@ -48,7 +48,15 @@ Leave `presentation` out until a model is ready: the page then shows the researc
 2. **Add the markers:** add `presentation.hotspots` (`id`, short `label`, `position`, `view`) and `"anatomy"` to `modes`.
 3. **Add the notes:** add one `content.hotspotNotes` entry per hotspot, each a cited claim. The schema rejects a hotspot without a note.
 
-## 5. Check
+## 5. Idle animation (optional)
+
+Only when the model can be rigged cleanly; run a rig test first (`docs/lookdev/tyrannosaurus-rex-rig.md` shows how).
+
+1. **Rig:** write `scripts/blender/rigs/<slug>.json` (bones in glTF axes), run `scripts/blender/rig_model.py`, and check stress poses with `scripts/blender/pose_test.py`.
+2. **Motion:** write `scripts/blender/rigs/<slug>-idle.json` (breaths, look keys, jaw keys, tail wave), then `scripts/blender/animate_idle.py` → `export_glb.py` → `npm run asset:build`. Check frames with `pose_test.py --frames 0,105,300`.
+3. **Record it:** `presentation.animation` (`clip`), add "rigged … animation" to `attribution.modifications`, and add a level-4 appearance note saying the motion is interpretation.
+
+## 6. Check
 
 ```
 npm run check            # types, lint, format, unit tests (incl. content integrity)

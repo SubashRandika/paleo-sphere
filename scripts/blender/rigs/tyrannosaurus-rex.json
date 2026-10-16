@@ -1,0 +1,194 @@
+{
+  "comment": "Skeleton for tyrannosaurus-rex.glb in glTF axes (Y up, +Z = head, metres). Joint positions from scripts/blender/analyze_mesh.py slices (2026-10-16): spine ~0.45 m below the dorsal surface, tail on the slice mid-line, limbs on the left/right slice centroids. Bones ending in .R are mirrored to .L (x negated).",
+  "weld": 0.0005,
+  "bones": [
+    {
+      "name": "root",
+      "head": [0, 0, 0.6],
+      "tail": [0, 0, 1.4],
+      "deform": false
+    },
+    {
+      "name": "pelvis",
+      "head": [0, 3.15, 0.6],
+      "tail": [0, 3.1, -0.2],
+      "parent": "root"
+    },
+    {
+      "name": "spine1",
+      "head": [0, 3.15, 0.6],
+      "tail": [0, 3.35, 1.6],
+      "parent": "pelvis"
+    },
+    {
+      "name": "spine2",
+      "head": [0, 3.35, 1.6],
+      "tail": [0, 3.4, 2.6],
+      "parent": "spine1",
+      "connect": true
+    },
+    {
+      "name": "spine3",
+      "head": [0, 3.4, 2.6],
+      "tail": [0, 3.45, 3.3],
+      "parent": "spine2",
+      "connect": true
+    },
+    {
+      "name": "neck1",
+      "head": [0, 3.45, 3.3],
+      "tail": [0, 3.55, 3.9],
+      "parent": "spine3",
+      "connect": true
+    },
+    {
+      "name": "neck2",
+      "head": [0, 3.55, 3.9],
+      "tail": [0, 3.7, 4.35],
+      "parent": "neck1",
+      "connect": true
+    },
+    {
+      "name": "head",
+      "head": [0, 3.7, 4.35],
+      "tail": [0, 3.35, 6.0],
+      "parent": "neck2",
+      "connect": true
+    },
+    {
+      "name": "jaw",
+      "head": [0, 3.1, 4.55],
+      "tail": [0, 2.6, 5.85],
+      "parent": "head"
+    },
+    {
+      "name": "tail1",
+      "head": [0, 3.1, -0.2],
+      "tail": [0, 2.95, -1.0],
+      "parent": "pelvis",
+      "connect": true
+    },
+    {
+      "name": "tail2",
+      "head": [0, 2.95, -1.0],
+      "tail": [0, 2.96, -1.8],
+      "parent": "tail1",
+      "connect": true
+    },
+    {
+      "name": "tail3",
+      "head": [0, 2.96, -1.8],
+      "tail": [0, 2.98, -2.6],
+      "parent": "tail2",
+      "connect": true
+    },
+    {
+      "name": "tail4",
+      "head": [0, 2.98, -2.6],
+      "tail": [0, 3.01, -3.4],
+      "parent": "tail3",
+      "connect": true
+    },
+    {
+      "name": "tail5",
+      "head": [0, 3.01, -3.4],
+      "tail": [0, 3.03, -4.2],
+      "parent": "tail4",
+      "connect": true
+    },
+    {
+      "name": "tail6",
+      "head": [0, 3.03, -4.2],
+      "tail": [0, 3.05, -5.0],
+      "parent": "tail5",
+      "connect": true
+    },
+    {
+      "name": "tail7",
+      "head": [0, 3.05, -5.0],
+      "tail": [0, 3.05, -5.95],
+      "parent": "tail6",
+      "connect": true
+    },
+    {
+      "name": "thigh.R",
+      "head": [0.55, 2.7, 0.55],
+      "tail": [0.72, 1.75, 1.25],
+      "parent": "pelvis"
+    },
+    {
+      "name": "shin.R",
+      "head": [0.72, 1.75, 1.25],
+      "tail": [0.77, 0.95, 0.42],
+      "parent": "thigh.R",
+      "connect": true
+    },
+    {
+      "name": "foot.R",
+      "head": [0.77, 0.95, 0.42],
+      "tail": [0.84, 0.15, 0.68],
+      "parent": "shin.R",
+      "connect": true
+    },
+    {
+      "name": "toes.R",
+      "head": [0.84, 0.15, 0.68],
+      "tail": [0.8, 0.05, 1.2],
+      "parent": "foot.R",
+      "connect": true
+    },
+    {
+      "name": "upperarm.R",
+      "head": [0.42, 2.7, 3.1],
+      "tail": [0.5, 2.25, 3.35],
+      "parent": "spine3"
+    },
+    {
+      "name": "forearm.R",
+      "head": [0.5, 2.25, 3.35],
+      "tail": [0.5, 1.95, 3.6],
+      "parent": "upperarm.R",
+      "connect": true
+    },
+    {
+      "name": "hand.R",
+      "head": [0.5, 1.95, 3.6],
+      "tail": [0.5, 1.7, 3.95],
+      "parent": "forearm.R",
+      "connect": true
+    }
+  ],
+  "rigid": {
+    "Tyrant_King_2_Eye_0": "head"
+  },
+  "cleanRegions": [
+    {
+      "comment": "Bone heat let the arms claim parts of the lower jaw.",
+      "box": {
+        "zMin": 4.2,
+        "yMin": 2.2
+      },
+      "removeBones": ["upperarm.R", "upperarm.L", "forearm.R", "forearm.L", "hand.R", "hand.L"]
+    }
+  ],
+  "jawSplit": {
+    "comment": "Gape line between the tooth rows, from analyze/gape survey (side band |x|<0.3) 2026-10-16.",
+    "upper": "head",
+    "lower": "jaw",
+    "zMin": 4.4,
+    "fade": 0.3,
+    "blend": 0.05,
+    "gape": [
+      [4.4, 2.95],
+      [4.8, 2.95],
+      [5.2, 3.05],
+      [5.3, 2.97],
+      [5.4, 2.89],
+      [5.5, 2.85],
+      [5.6, 2.82],
+      [5.7, 2.77],
+      [5.85, 2.7],
+      [6.1, 2.6]
+    ]
+  }
+}

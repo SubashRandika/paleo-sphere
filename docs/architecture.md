@@ -350,3 +350,18 @@ Approve or amend:
 | Hotspot placement | `scripts/blender/surface_points.py` ray casts against the prepared GLB | Positions sit on the real surface instead of being guessed |
 | Store | `mode` and `hotspot` in the viewer store; `attach` resets both for each species; reset, deselect and leaving anatomy return to the default view | One source of truth for toolbar, markers and note |
 
+
+## 17. Idle animation (2026-10-16)
+
+| Area | Decision | Why |
+|---|---|---|
+| Where motion lives | A glTF clip baked in Blender (`animate_idle.py` from a JSON spec), not procedural code in the viewer | The viewer stays species-agnostic: any model with a clip named in `presentation.animation` plays it. Tweaks are data + a rebuild |
+| Playback | `ModelAnimation` (inside `SpeciesModel`) owns an `AnimationMixer`; the store holds `playing`; Play/Pause lives in the DOM toolbar | Never autoplays (CLAUDE.md §6). The demand frameloop stays: each playing frame advances the clip and requests the next, so paused or idle costs no GPU time |
+| Modes | Playing is studio-only; leaving studio stops the clip, which restores the rest pose | Anatomy markers are placed on the rest pose |
+| Shadows | Key-light shadow map and contact shadow re-render every frame only while playing, and once when it stops | Otherwise shadows stay on the old pose. Measured: 60 fps, p95 17.3 ms on an integrated Radeon 860M |
+| Sound | None. A synthesised breathing track (Web Audio, synced to the rib cage) was built and removed at review | It did not sound realistic, and an unconvincing sound undermines a realistic model more than silence does |
+| Labelling | Caption while playing: "Motion is artistic interpretation" (live region); level-4 appearance note; "rigged … animation" in the CC BY modifications | Nobody mistakes the motion for evidence |
+| Off-screen | Pauses on a hidden tab or when the stage scrolls out of view | No rendering for an animal nobody is watching |
+| Frustum culling | Off for skinned meshes | The bounding sphere is computed once, in one pose; a moving mesh can leave it |
+| Marker occlusion | `occlusion-proxy.ts`: markers raycast against a rest-pose copy of the skinned positions, computed once at load | three.js skins every tested vertex on the CPU for a SkinnedMesh raycast: anatomy camera moves fell to ~350 ms per frame. The copy is exact (built with three's own `getVertexPosition`) and brings it back to the static model's cost |
+| Error status | `SpeciesModel` cleanup no longer overwrites "error" with "loading" | A render error after load left "Loading model · 100%" on screen instead of the retry message (found while testing playback) |

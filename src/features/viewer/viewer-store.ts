@@ -51,6 +51,8 @@ type ViewerState = {
   mode: ViewerMode;
   /** Selected anatomy hotspot id; only meaningful in anatomy mode. */
   hotspot: string | null;
+  /** The species' looping clip is playing. Studio mode only: anatomy markers need the rest pose. */
+  playing: boolean;
 
   setStatus(status: ViewerStatus): void;
   setProgress(progress: number): void;
@@ -61,6 +63,7 @@ type ViewerState = {
   setMode(mode: ViewerMode): void;
   /** Selects a hotspot and frames it; `null` deselects and returns to the default view. */
   selectHotspot(id: string | null): void;
+  setPlaying(playing: boolean): void;
 
   zoom(direction: 1 | -1): void;
   orbit(azimuthDeg: number, polarDeg: number): void;
@@ -90,20 +93,23 @@ export const useViewerStore = create<ViewerState>()((set, get) => {
     hotspots: [],
     mode: "studio",
     hotspot: null,
+    playing: false,
 
     setStatus: (status) => set({ status }),
     setProgress: (progress) => set({ progress }),
     setRetry: (retry) => set({ retry }),
     setAnimate: (animate) => set({ animate }),
-    // A new species starts in studio mode with nothing selected.
+    // A new species starts in studio mode, still, with nothing selected.
     attach: (controller, camera, hotspots = []) =>
-      set({ controller, camera, hotspots, mode: "studio", hotspot: null }),
-    detach: () => set({ controller: null, camera: null, hotspots: [], mode: "studio", hotspot: null }),
+      set({ controller, camera, hotspots, mode: "studio", hotspot: null, playing: false }),
+    detach: () =>
+      set({ controller: null, camera: null, hotspots: [], mode: "studio", hotspot: null, playing: false }),
 
     setMode: (mode) => {
       if (mode === get().mode) return;
       const wasSelected = get().hotspot !== null;
-      set({ mode, hotspot: null });
+      // Other modes show the rest pose (the model returns to it when the clip stops).
+      set({ mode, hotspot: null, playing: mode === "studio" && get().playing });
       if (wasSelected) get().reset();
     },
     selectHotspot: (id) => {
@@ -113,6 +119,7 @@ export const useViewerStore = create<ViewerState>()((set, get) => {
       if (target) lookAt(target.view);
       else get().reset();
     },
+    setPlaying: (playing) => set({ playing: playing && get().mode === "studio" }),
 
     zoom: (direction) => {
       const { controller, animate } = get();
