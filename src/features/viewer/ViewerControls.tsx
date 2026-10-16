@@ -2,10 +2,12 @@
 
 import type { ReactNode } from "react";
 import type { ViewerConfig } from "@/domain/species/viewer-config";
-import { useViewerStore } from "./viewer-store";
+import { useViewerStore, type ViewerMode } from "./viewer-store";
 
 type Props = {
   presets: ViewerConfig["camera"]["presets"];
+  /** Presentation modes the species supports; the switch appears when there is more than studio. */
+  modes?: ViewerConfig["modes"];
   fullscreen: { supported: boolean; active: boolean; toggle(): void };
 };
 
@@ -13,16 +15,39 @@ type Props = {
  * Camera toolbar. Lives in the DOM (not the canvas) so it is keyboard- and screen-reader-accessible.
  * Buttons call store actions; the store moves the camera without re-rendering the scene.
  */
-export function ViewerControls({ presets, fullscreen }: Props) {
+const MODE_LABELS: Record<ViewerMode, string> = { studio: "Studio", anatomy: "Anatomy" };
+
+export function ViewerControls({ presets, modes = ["studio"], fullscreen }: Props) {
   const ready = useViewerStore((s) => s.status === "ready");
-  const { zoom, reset, goTo } = useViewerStore.getState();
+  const mode = useViewerStore((s) => s.mode);
+  const { zoom, reset, goTo, setMode } = useViewerStore.getState();
+  const available = (Object.keys(MODE_LABELS) as ViewerMode[]).filter((m) => modes.includes(m));
 
   return (
     <div
       role="toolbar"
       aria-label="Camera"
-      className="flex items-center gap-1 rounded-full border border-rule bg-surface/85 p-1 backdrop-blur"
+      className="flex flex-wrap items-center justify-center gap-1 rounded-[1.25rem] border border-rule bg-surface/85 p-1 backdrop-blur"
     >
+      {available.length > 1 && (
+        <>
+          <div role="group" aria-label="Presentation mode" className="flex gap-1">
+            {available.map((m) => (
+              <button
+                key={m}
+                type="button"
+                aria-pressed={mode === m}
+                disabled={!ready}
+                onClick={() => setMode(m)}
+                className={`${buttonClass} px-3 font-mono text-[0.6875rem] tracking-[0.12em] uppercase aria-pressed:bg-ink aria-pressed:text-bg aria-pressed:hover:bg-ink`}
+              >
+                {MODE_LABELS[m]}
+              </button>
+            ))}
+          </div>
+          <span aria-hidden="true" className="mx-1 h-5 w-px bg-rule" />
+        </>
+      )}
       {presets.map((preset) => (
         <TextButton
           key={preset.id}

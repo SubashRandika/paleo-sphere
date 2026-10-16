@@ -4,9 +4,10 @@
 
 - **Phase:** 3 — First working 3D viewer (implemented; real-device validation pending)
 - **Phase:** 4 — Realism and asset pipeline (implemented 2026-10-16)
-- **Phase:** 5 — Scientific species content (implemented 2026-10-16; awaiting your review)
-- **Task:** Review the five species pages and `docs/research/`; Task 3.6 (real-device check) still open
-- **Next recommended action:** Read the research notes and switch the records you accept from `reviewed` to `published`, then approve Phase 6 (species explorer: navigation, switching, remaining 3D models).
+- **Phase:** 5 — Scientific species content (approved 2026-10-16; records published)
+- **Phase:** 6 — Complete species explorer (in progress)
+- **Task:** 6.5 remaining models + fossil scans, **waiting for your Sketchfab downloads** into `assets-src/<name>/`; Task 3.6 still open
+- **Next recommended action:** Download the six models listed under Phase 6 → 6.5; Claude then prepares, builds and reviews each one.
 
 ## Phase checklist
 
@@ -43,9 +44,15 @@
   - [x] 5.3 Content for all five species (`src/content/species/`), per-claim research notes in `docs/research/`; T. rex 12 m confirmed (no asset rebuild); the "three fingers" question resolved (two per hand, correct)
   - [x] 5.4 Article UI: quick facts with estimate breakdown, fact cards, Known / Uncertain, collapsible In depth, evidence key, numbered sources; placeholder for species without a model
   - [x] Verified: 81 unit/component tests, 28 e2e tests (desktop + Pixel 7), typecheck, lint, format
-  - [ ] 5.5 Your review → set accepted records to `published` (removes `noindex`)
+  - [x] 5.5 Your review → all five records `published` (approved 2026-10-16)
 - [x] Light theme (your request, 2026-10-16): header toggle, stored choice, no-flash init script, theme-aware 3D floor; contrast checked (`design-direction.md`)
-- [ ] Phase 6 — Complete species explorer
+- [ ] Phase 6 — Complete species explorer (Claude implementing, 2026-10-16)
+  - [x] 6.1 Persistent 3D stage in `app/species/layout.tsx`; model swap with per-model error boundary; `instant = false` keeps all text in server HTML
+  - [x] 6.2 Species browser on the home page (search; period, diet and group filters; oldest first) and the strata rail / phone strip on species pages
+  - [x] 6.3 Structured info panel with a length comparison and jump links
+  - [x] 6.4 Anatomy mode: 5 *T. rex* hotspots (Blender ray-cast positions, cited notes), mode switch, DOM markers, note card
+  - [ ] 6.5 Models for *Triceratops*, *Stegosaurus*, *Mamenchisaurus*, *Allosaurus* + fossil scans (*Triceratops* skeleton, *T. rex* skull cast), **blocked on downloads** (Sketchfab requires a logged-in account): Triceratops (D.art), Stegosaurus (PusztaiAndras), Mamen River Dragon (D.art), Animated Allosaurus (AneesAnimates), Triceratops horridus Marsh (Smithsonian, CC0), T. rex skull MOTE (CC0), glTF format, one folder each under `assets-src/`
+  - [x] 6.6 `docs/adding-a-species.md`; tests: 107 unit/component, 42 e2e (desktop + Pixel 7)
 - [ ] Phase 7 — Habitat and cinematic presentation
 - [ ] Phase 8 — Quality, accessibility, and optimization
 - [ ] Phase 9 — Deployment and release
@@ -77,6 +84,9 @@
 | 2026-10-16 | *Stegosaurus stenops* (not *S. armatus*). | ICZN Opinion 2320 (2013) made *S. stenops* the type species. |
 | 2026-10-16 | Bibliographic data come from Crossref, never memory; checked by `content:verify`. | Two DOIs recalled from memory were wrong. |
 | 2026-10-16 | Phase 5 decisions. | See `architecture.md` §15. |
+| 2026-10-16 | All five species records `published`. | Your approval of Phase 5. |
+| 2026-10-16 | Species pages use `instant = false` instead of `<Suspense>` around `params`. | Suspense hid the article from no-JS visitors; see `architecture.md` §16. |
+| 2026-10-16 | Phase 6 decisions. | See `architecture.md` §16. |
 | 2026-10-16 | Light theme: dark stays the default; the visitor's choice is stored. | CLAUDE.md §10 "dark-first … optional light theme". Following the OS setting instead is a one-line change in `THEME_INIT_SCRIPT`. |
 
 ## Assumptions
@@ -107,7 +117,6 @@
 - Content was reviewed by the project (Claude), not by a paleontologist. Paywalled papers were checked against abstracts only (`docs/research/README.md`).
 - *Triceratops* mass and several lengths rest on a single museum figure with no stated method; labelled as such. No mass for *Mamenchisaurus*.
 - Smithsonian NMNH and Field Museum pages refuse scripted requests, so they are not cited yet. PBDB citations link to the data API (JSON), not the human-readable page.
-- Dev-only Next 16 notice "URL data outside of Suspense" on `/species/[slug]`; fix with species switching in Phase 6 (`architecture.md` §15).
 - Lookdev images come from SwiftShader; real GPUs may pick different KTX2 target formats.
 
 ## Outstanding risks

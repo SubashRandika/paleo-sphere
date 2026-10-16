@@ -2,12 +2,13 @@
 
 import { ContactShadows, useGLTF, useProgress } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
-import { Suspense, useCallback, useEffect, useMemo } from "react";
-import { PCFShadowMap } from "three";
+import { Suspense, useCallback, useEffect, useMemo, useRef } from "react";
+import { PCFShadowMap, type Object3D } from "three";
 import type { ViewerConfig } from "@/domain/species/viewer-config";
 import { chooseAssetTier, readDeviceSignals } from "@/lib/device-tier";
 import { releaseKTX2Loader } from "@/lib/three/ktx2";
 import { CameraRig } from "./CameraRig";
+import { Hotspots } from "./Hotspots";
 import { STUDIO_SETTINGS, TONE_MAPPING, type RenderSettings } from "./render-settings";
 import { SpeciesModel } from "./SpeciesModel";
 import { StageFloor } from "./StageFloor";
@@ -52,6 +53,7 @@ export default function Scene({ config, settings = STUDIO_SETTINGS, modelUrl }: 
     }),
     [settings.toneMapping, settings.exposure],
   );
+  const model = useRef<Object3D>(null);
   const setStatus = useViewerStore((s) => s.setStatus);
   const setRetry = useViewerStore((s) => s.setRetry);
 
@@ -72,24 +74,30 @@ export default function Scene({ config, settings = STUDIO_SETTINGS, modelUrl }: 
   return (
     <>
       <ProgressReporter />
-      <ViewerErrorBoundary onError={handleError}>
-        <Canvas
-          frameloop="demand"
-          // PCFShadowMap: filtered (soft-edged) shadows. PCFSoftShadowMap was removed in three r18x.
-          shadows={settings.shadows ? { type: PCFShadowMap } : false}
-          dpr={[1, 2]}
-          gl={gl}
-          camera={{ fov: 35, near: 0.1, far: 300, position: config.camera.default.position }}
-        >
-          <RendererLifecycle />
-          <StudioLighting
-            environmentIntensity={settings.environmentIntensity}
-            keyLightIntensity={settings.keyLightIntensity}
-            shadows={settings.shadows}
-          />
-          <StageFloor />
+      <Canvas
+        frameloop="demand"
+        // PCFShadowMap: filtered (soft-edged) shadows. PCFSoftShadowMap was removed in three r18x.
+        shadows={settings.shadows ? { type: PCFShadowMap } : false}
+        dpr={[1, 2]}
+        gl={gl}
+        camera={{ fov: 35, near: 0.1, far: 300, position: config.camera.default.position }}
+      >
+        <RendererLifecycle />
+        <StudioLighting
+          environmentIntensity={settings.environmentIntensity}
+          keyLightIntensity={settings.keyLightIntensity}
+          shadows={settings.shadows}
+        />
+        <StageFloor />
+        {/*
+            One boundary per model file (key = url). Switching species unmounts the previous model
+            at once (its effect cleanup frees GPU memory) and suspends on the next; a failed download
+            only affects that model, while the canvas, renderer and KTX2 transcoder stay alive.
+          */}
+        <ViewerErrorBoundary key={url} onError={handleError}>
           <Suspense fallback={null}>
-            <SpeciesModel url={url} disabledMaps={settings.disabledMaps} />
+            <SpeciesModel ref={model} url={url} disabledMaps={settings.disabledMaps} />
+            <Hotspots hotspots={config.hotspots} occluder={model} />
             {/*
               Soft occlusion shadow under the feet, rendered once after the model mounts.
               Must sit at or slightly BELOW y = 0: Drei's blur passes draw a plane at world y = 0 through
@@ -107,9 +115,9 @@ export default function Scene({ config, settings = STUDIO_SETTINGS, modelUrl }: 
               frames={1}
             />
           </Suspense>
-          <CameraRig camera={config.camera} />
-        </Canvas>
-      </ViewerErrorBoundary>
+        </ViewerErrorBoundary>
+        <CameraRig camera={config.camera} hotspots={config.hotspots} />
+      </Canvas>
     </>
   );
 }

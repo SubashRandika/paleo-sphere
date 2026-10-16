@@ -2,7 +2,7 @@
 
 import { useGLTF } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { useEffect } from "react";
+import { useEffect, type Ref } from "react";
 import { Mesh, type Material, type Object3D, type Texture } from "three";
 import { disposeObject } from "@/lib/three/dispose";
 import { getKTX2Loader } from "@/lib/three/ktx2";
@@ -20,6 +20,8 @@ type Props = {
   url: string;
   /** Lookdev only: switch off texture maps to see what each contributes. */
   disabledMaps?: MapSlot[];
+  /** The loaded scene, e.g. for hotspot occlusion. */
+  ref?: Ref<Object3D>;
 };
 
 /**
@@ -29,7 +31,7 @@ type Props = {
  * the loading state. The asset is already life-size, centred, and standing on y = 0
  * (scripts/blender/prepare_model.py), so no runtime centring is needed.
  */
-export function SpeciesModel({ url, disabledMaps }: Props) {
+export function SpeciesModel({ url, disabledMaps, ref }: Props) {
   const gl = useThree((s) => s.gl);
   const { scene } = useGLTF(url, USE_DRACO, USE_MESHOPT, (loader) => {
     // KTX2 textures (KHR_texture_basisu). Drei's GLTFLoader comes from three-stdlib, whose
@@ -107,5 +109,5 @@ export function SpeciesModel({ url, disabledMaps }: Props) {
     };
   }, [scene, rootScene, gl, camera, invalidate, setStatus, url, disabledMaps]);
 
-  return <primitive object={scene} />;
+  return <primitive ref={ref} object={scene} />;
 }

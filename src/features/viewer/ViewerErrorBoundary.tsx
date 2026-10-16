@@ -9,9 +9,9 @@ type Props = {
 };
 
 /**
- * Catches failures inside the canvas (a 404 model, a corrupt file, a lost WebGL context during load).
- * R3F re-throws errors from inside <Canvas> into the surrounding React tree, so a normal
- * error boundary around the canvas receives them. The visible error message lives in the
+ * Catches a model that fails to load (a 404, a corrupt file, a lost WebGL context during load).
+ * It sits inside <Canvas> around one model: React error boundaries work in R3F's reconciler too,
+ * so a failure removes only that model, not the canvas. The visible error message lives in the
  * DOM overlay (ViewerIsland), not here.
  */
 export class ViewerErrorBoundary extends Component<Props, { failed: boolean }> {

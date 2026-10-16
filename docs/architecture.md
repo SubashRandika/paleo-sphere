@@ -322,7 +322,7 @@ Research method and per-claim evidence: `docs/research/`.
 
 Light theme (added after Phase 5): `src/lib/theme.ts` (constants, `applyTheme`, `THEME_INIT_SCRIPT`), `src/lib/use-theme.ts` (`useSyncExternalStore` over a `MutationObserver` on `<html data-theme>`), and `src/ui/ThemeToggle.tsx`. The root layout renders `data-theme="dark"` with `suppressHydrationWarning`, because the inline script may change it before hydration. Components use only semantic tokens; the one canvas-side consumer is `StageFloor`, which rebuilds its 256 px pool texture when the theme changes.
 
-Known issue (dev only): Next 16 reports "URL data outside of Suspense" for `/species/[slug]` because the page awaits `params` at the top. It affects instant client-side navigation between species, which arrives with species switching in Phase 6. Fix it then by moving the per-slug content behind a `<Suspense>` boundary (see `node_modules/next/dist/docs/01-app/02-guides/adopting-partial-prefetching.md` § Move URL data behind Suspense).
+Resolved in Phase 6: the "URL data outside of Suspense" dev notice; see §16.
 
 ## 14. Decisions requested
 
@@ -333,3 +333,20 @@ Approve or amend:
 3. Layered folders with `domain/` free of React/three; one TS content file per species, validated at build.
 4. Zustand store for UI ↔ canvas; CameraControls for camera motion; GSAP for DOM only.
 5. Testing split above; no canvas screenshot diffs in CI.
+
+## 16. Phase 6 implementation notes (2026-10-16)
+
+| Area | Decision | Why |
+|---|---|---|
+| Persistent stage | `app/species/layout.tsx` hosts the strata rail and `SpeciesStage` (client, reads the slug with `useParams`); the page renders only the info panel and article, placed into the layout's grid through a fragment | Moving between species keeps the WebGL canvas, renderer and KTX2 transcoder; only the model is swapped. Prerequisite for Phase 7 transitions |
+| Model swap | Inside `<Canvas>`, `<ViewerErrorBoundary key={url}>` wraps the model's `<Suspense>` | A new URL unmounts the old model immediately (deferred disposal frees its GPU memory) and suspends on the next. A failed download now removes only that model, not the canvas |
+| Navigation timing | Species page exports `instant = false`; no `<Suspense>` around `params` | With `<Suspense>`, Next streamed the article into a hidden block that only JavaScript reveals, so no-JS visitors and the "text is in the server HTML" e2e test saw nothing. Pages are prerendered, so waiting for the payload is cheap. Next 16 also keeps the previous page hidden (Activity) for instant Back |
+| Species browser | `domain/species/explorer.ts` derives summaries, age order, facets and filtering from records; `SpeciesBrowser` (home) and `StrataRail` (species pages) consume it | A new species file needs no UI change. Filters render only after hydration (`useHydrated`), so the no-JS page is a complete list with no dead controls |
+| Strata rail | ICS 2023/09 period boundaries; labels spread by `spreadLabels` with curved connectors to the true age range | Five species share two narrow age bands; labels must not overlap but the bar must stay at the true age |
+| ICS colours | Literal `bg-period-*` classes | `@theme inline` compiles the colours into utilities without emitting CSS variables, so `var(--color-period-…)` resolved to nothing |
+| Info panel | `SpeciesPanel`: identity, summary, quick facts, length comparison, model notes, jump links | A short scan beside the model; depth stays in the article |
+| Length comparison | One axis from zero; solid to the lowest estimate, lighter to the highest; values as text | Derived from cited estimates only (no new claims); disagreement stays visible |
+| Anatomy mode | Hotspots in `presentation` (`id`, `label`, `position`, `view`), notes in `content.hotspotNotes`; schema requires a note per hotspot. Markers are Drei `<Html>` buttons occluded by the model; notes render outside the viewer (`HotspotNote`, fed by the layout) | The viewer still never receives prose or citations. DOM markers are focusable and announced; Escape closes a note |
+| Hotspot placement | `scripts/blender/surface_points.py` ray casts against the prepared GLB | Positions sit on the real surface instead of being guessed |
+| Store | `mode` and `hotspot` in the viewer store; `attach` resets both for each species; reset, deselect and leaving anatomy return to the default view | One source of truth for toolbar, markers and note |
+

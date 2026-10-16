@@ -38,7 +38,7 @@ function words(text: string): string[] {
   return text
     .replace(/<[^>]+>/g, " ")
     .normalize("NFKD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
     .trim()

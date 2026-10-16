@@ -14,7 +14,9 @@ import { useViewerStore, type CameraController } from "./viewer-store";
  *   touch  — one finger: rotate · two fingers: pinch-zoom + pan
  * maxPolarAngle stops the camera dipping below the ground plane.
  */
-export function CameraRig({ camera }: { camera: ViewerConfig["camera"] }) {
+type Props = { camera: ViewerConfig["camera"]; hotspots: ViewerConfig["hotspots"] };
+
+export function CameraRig({ camera, hotspots }: Props) {
   const controls = useRef<CameraControls>(null);
   const attach = useViewerStore((s) => s.attach);
   const detach = useViewerStore((s) => s.detach);
@@ -40,9 +42,9 @@ export function CameraRig({ camera }: { camera: ViewerConfig["camera"] }) {
     // Initial view: instant (no transition), fitted to the stage shape.
     const view = fitView(camera.default, controller.camera.aspect);
     void c.setLookAt(...view.position, ...view.target, false);
-    attach(controller, camera);
+    attach(controller, camera, hotspots);
     return detach;
-  }, [camera, attach, detach]);
+  }, [camera, hotspots, attach, detach]);
 
   return (
     <CameraControls

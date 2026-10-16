@@ -31,8 +31,11 @@ export interface CameraController {
 
 type CameraConfig = ViewerConfig["camera"];
 type CameraView = CameraConfig["default"];
+type Hotspot = ViewerConfig["hotspots"][number];
 
 export type ViewerStatus = "loading" | "ready" | "error";
+/** The presentation modes the viewer implements so far (habitat: Phase 7; fossil: with its scan). */
+export type ViewerMode = "studio" | "anatomy";
 
 type ViewerState = {
   status: ViewerStatus;
@@ -44,13 +47,20 @@ type ViewerState = {
   animate: boolean;
   controller: CameraController | null;
   camera: CameraConfig | null;
+  hotspots: readonly Hotspot[];
+  mode: ViewerMode;
+  /** Selected anatomy hotspot id; only meaningful in anatomy mode. */
+  hotspot: string | null;
 
   setStatus(status: ViewerStatus): void;
   setProgress(progress: number): void;
   setRetry(retry: (() => void) | null): void;
   setAnimate(animate: boolean): void;
-  attach(controller: CameraController, camera: CameraConfig): void;
+  attach(controller: CameraController, camera: CameraConfig, hotspots?: readonly Hotspot[]): void;
   detach(): void;
+  setMode(mode: ViewerMode): void;
+  /** Selects a hotspot and frames it; `null` deselects and returns to the default view. */
+  selectHotspot(id: string | null): void;
 
   zoom(direction: 1 | -1): void;
   orbit(azimuthDeg: number, polarDeg: number): void;
@@ -77,13 +87,32 @@ export const useViewerStore = create<ViewerState>()((set, get) => {
     animate: true,
     controller: null,
     camera: null,
+    hotspots: [],
+    mode: "studio",
+    hotspot: null,
 
     setStatus: (status) => set({ status }),
     setProgress: (progress) => set({ progress }),
     setRetry: (retry) => set({ retry }),
     setAnimate: (animate) => set({ animate }),
-    attach: (controller, camera) => set({ controller, camera }),
-    detach: () => set({ controller: null, camera: null }),
+    // A new species starts in studio mode with nothing selected.
+    attach: (controller, camera, hotspots = []) =>
+      set({ controller, camera, hotspots, mode: "studio", hotspot: null }),
+    detach: () => set({ controller: null, camera: null, hotspots: [], mode: "studio", hotspot: null }),
+
+    setMode: (mode) => {
+      if (mode === get().mode) return;
+      const wasSelected = get().hotspot !== null;
+      set({ mode, hotspot: null });
+      if (wasSelected) get().reset();
+    },
+    selectHotspot: (id) => {
+      const target = id === null ? undefined : get().hotspots.find((h) => h.id === id);
+      if (id !== null && !target) return;
+      set({ hotspot: target ? target.id : null });
+      if (target) lookAt(target.view);
+      else get().reset();
+    },
 
     zoom: (direction) => {
       const { controller, animate } = get();
@@ -97,6 +126,7 @@ export const useViewerStore = create<ViewerState>()((set, get) => {
     },
     reset: () => {
       const camera = get().camera;
+      set({ hotspot: null });
       if (camera) lookAt(camera.default);
     },
     goTo: (presetId) => {

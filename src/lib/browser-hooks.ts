@@ -25,6 +25,18 @@ function detectWebGL2(): boolean {
   return webgl2;
 }
 
+/**
+ * False during server render and the first hydration pass, true after. For controls that only
+ * work with JavaScript (filters, toggles), so visitors without it never see inert UI.
+ */
+export function useHydrated(): boolean {
+  return useSyncExternalStore(
+    noSubscribe,
+    () => true,
+    () => false,
+  );
+}
+
 /** `null` until known (server render), then whether WebGL2 is available. */
 export function useWebGL2Support(): boolean | null {
   return useSyncExternalStore(noSubscribe, detectWebGL2, () => null);

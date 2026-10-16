@@ -88,6 +88,8 @@ const measurementSchema = z.strictObject({ estimates: z.array(estimateSchema).mi
 export const contentSchema = z.strictObject({
   /** Clade path from broad to narrow, e.g. ["Dinosauria", "Theropoda", "Tyrannosauridae"] */
   taxonomy: z.array(z.string().min(1)).min(1),
+  /** Plain-language group for the species browser filter, e.g. "Theropod". Shared spelling across records. */
+  group: z.string().min(1),
   period: z.enum(["Triassic", "Jurassic", "Cretaceous"]),
   age: z
     .strictObject({
@@ -178,7 +180,14 @@ export const presentationSchema = z.strictObject({
       }),
   }),
   modes: z.array(presentationModeSchema).min(1),
-  hotspots: z.array(z.strictObject({ id, position: vec3 })),
+  /**
+   * Anatomy-mode markers. `position` is a point on the model surface (find one with
+   * scripts/blender/surface_points.py); `view` frames it when selected. The explanation lives
+   * in content.hotspotNotes, so the viewer never receives scientific prose.
+   */
+  hotspots: z.array(
+    z.strictObject({ id, label: z.string().min(1).max(32), position: vec3, view: cameraViewSchema }),
+  ),
   habitatId: id.optional(),
   fossil: z
     .strictObject({
@@ -261,6 +270,11 @@ export const speciesSchema = z
     c.hotspotNotes.forEach((n, i) => {
       if (!hotspotIds.has(n.hotspotId))
         issue(`Unknown hotspot id "${n.hotspotId}"`, ["content", "hotspotNotes", i, "hotspotId"]);
+    });
+    // …and every marker a visitor can select needs an explanation.
+    const noted = new Set(c.hotspotNotes.map((n) => n.hotspotId));
+    p?.hotspots.forEach((h, i) => {
+      if (!noted.has(h.id)) issue(`Hotspot "${h.id}" has no note`, ["presentation", "hotspots", i]);
     });
 
     // Display gate: reviewed and published records are shown to visitors, so every

@@ -53,6 +53,7 @@ function withContent(): SpeciesInput {
     ...draft(),
     content: {
       taxonomy: ["Dinosauria"],
+      group: "Fixture group",
       period: "Cretaceous",
       age: { maxMa: 68, minMa: 66, stage: "Maastrichtian", citationIds: ["ref-a"] },
       localities: [
@@ -77,6 +78,11 @@ function withContent(): SpeciesInput {
     },
   };
 }
+
+const VIEW = {
+  position: [3, 2, 3] as [number, number, number],
+  target: [0, 1, 0] as [number, number, number],
+};
 
 const messages = (input: unknown) => {
   const result = speciesSchema.safeParse(input);
@@ -192,7 +198,7 @@ describe("speciesSchema", () => {
   it("requires studio mode", () => {
     const s = draft();
     s.presentation!.modes = ["anatomy"];
-    s.presentation!.hotspots = [{ id: "skull", position: [0, 0, 0] }];
+    s.presentation!.hotspots = [{ id: "skull", label: "Skull", position: [0, 0, 0], view: VIEW }];
     expect(messages(s)).toContain("Every species supports studio mode");
   });
 
@@ -202,6 +208,16 @@ describe("speciesSchema", () => {
       { hotspotId: "skull", title: "Skull", body: { text: "x", level: 1, citationIds: ["ref-a"] } },
     ];
     expect(messages(s)).toContain('Unknown hotspot id "skull"');
+  });
+
+  it("requires a note for every hotspot once content exists", () => {
+    const s = withContent();
+    s.presentation!.hotspots = [{ id: "skull", label: "Skull", position: [0, 1, 0], view: VIEW }];
+    expect(messages(s)).toContain('Hotspot "skull" has no note');
+    s.content!.hotspotNotes = [
+      { hotspotId: "skull", title: "Skull", body: { text: "x", level: 1, citationIds: ["ref-a"] } },
+    ];
+    expect(messages(s)).toEqual([]);
   });
 
   it("rejects camera limits where min ≥ max", () => {

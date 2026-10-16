@@ -32,7 +32,9 @@ export function ViewerIsland({ config }: { config: ViewerConfig }) {
   const progress = useViewerStore((s) => s.progress);
   const retry = useViewerStore((s) => s.retry);
   const setAnimate = useViewerStore((s) => s.setAnimate);
-  const [posterFailed, setPosterFailed] = useState(false);
+  // Remember which poster failed rather than a boolean, so switching species tries the new one.
+  const [failedPoster, setFailedPoster] = useState<string | null>(null);
+  const posterFailed = failedPoster === config.model.poster;
 
   useEffect(() => setAnimate(!reducedMotion), [reducedMotion, setAnimate]);
 
@@ -83,7 +85,7 @@ export function ViewerIsland({ config }: { config: ViewerConfig }) {
         <img
           src={config.model.poster}
           alt=""
-          onError={() => setPosterFailed(true)}
+          onError={() => setFailedPoster(config.model.poster)}
           className={`pointer-events-none absolute inset-0 size-full object-contain transition-opacity duration-500 ${
             state === "ready" ? "opacity-0" : "opacity-100"
           }`}
@@ -103,6 +105,7 @@ export function ViewerIsland({ config }: { config: ViewerConfig }) {
           <div className="pointer-events-auto">
             <ViewerControls
               presets={config.camera.presets}
+              modes={config.modes}
               fullscreen={{ ...fullscreen, toggle: toggleFullscreen }}
             />
           </div>

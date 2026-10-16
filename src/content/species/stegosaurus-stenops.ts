@@ -15,6 +15,7 @@ export const stegosaurusStenops: SpeciesInput = {
   synonyms: [],
   content: {
     taxonomy: ["Dinosauria", "Ornithischia", "Thyreophora", "Stegosauria", "Stegosauridae"],
+    group: "Plated dinosaur",
     period: "Jurassic",
     age: {
       maxMa: 152,
@@ -332,5 +333,5 @@ export const stegosaurusStenops: SpeciesInput = {
       },
     ],
   },
-  review: { status: "reviewed", reviewedOn: "2026-10-16" },
+  review: { status: "published", reviewedOn: "2026-10-16" },
 };

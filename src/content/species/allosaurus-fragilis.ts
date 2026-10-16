@@ -15,6 +15,7 @@ export const allosaurusFragilis: SpeciesInput = {
   synonyms: [],
   content: {
     taxonomy: ["Dinosauria", "Saurischia", "Theropoda", "Allosauridae"],
+    group: "Theropod",
     period: "Jurassic",
     age: {
       maxMa: 152,
@@ -357,5 +358,5 @@ export const allosaurusFragilis: SpeciesInput = {
       },
     ],
   },
-  review: { status: "reviewed", reviewedOn: "2026-10-16" },
+  review: { status: "published", reviewedOn: "2026-10-16" },
 };

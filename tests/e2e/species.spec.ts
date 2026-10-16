@@ -59,9 +59,9 @@ test("source markers jump to the matching entry in the sources list", async ({ p
   await expect(page.locator(target!)).toBeInViewport();
 });
 
-test("reviewed records are not yet offered to search engines", async ({ page }) => {
+test("published records are offered to search engines", async ({ page }) => {
   await page.goto("/species/tyrannosaurus-rex");
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /^index, follow$/);
 });
 
 test("unknown species returns 404", async ({ page }) => {

@@ -42,6 +42,19 @@ describe("ViewerControls", () => {
     expect(screen.queryByRole("button", { name: /full screen/i })).not.toBeInTheDocument();
   });
 
+  it("shows a mode switch only for species with more than studio mode", async () => {
+    const { unmount } = render(<ViewerControls presets={presets} fullscreen={noFullscreen} />);
+    expect(screen.queryByRole("group", { name: "Presentation mode" })).not.toBeInTheDocument();
+    unmount();
+
+    const setMode = vi.fn();
+    useViewerStore.setState({ status: "ready", mode: "studio", setMode });
+    render(<ViewerControls presets={presets} modes={["studio", "anatomy"]} fullscreen={noFullscreen} />);
+    expect(screen.getByRole("button", { name: "Studio" })).toHaveAttribute("aria-pressed", "true");
+    await userEvent.click(screen.getByRole("button", { name: "Anatomy" }));
+    expect(setMode).toHaveBeenCalledWith("anatomy");
+  });
+
   it("labels the full-screen button by what it will do", () => {
     render(
       <ViewerControls presets={presets} fullscreen={{ supported: true, active: true, toggle: vi.fn() }} />,

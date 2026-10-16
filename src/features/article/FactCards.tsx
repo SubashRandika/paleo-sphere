@@ -10,9 +10,9 @@ export function FactCards({ facts, index }: { facts: readonly Fact[]; index: Cit
       <h2 id="facts-heading" className="font-display text-3xl">
         Worth knowing
       </h2>
-      <ul className="grid gap-px overflow-hidden border border-rule bg-rule sm:grid-cols-2">
+      <ul className="grid border-t border-l border-rule sm:grid-cols-2">
         {facts.map((fact) => (
-          <li key={fact.title} className="space-y-3 bg-bg p-5">
+          <li key={fact.title} className="space-y-3 border-r border-b border-rule p-5">
             <EvidenceBadge level={fact.level} />
             <h3 className="font-display text-xl leading-snug">
               <RichText text={fact.title} />

@@ -23,6 +23,7 @@ export const tyrannosaurusRex: SpeciesInput = {
       "Tyrannosauridae",
       "Tyrannosaurinae",
     ],
+    group: "Theropod",
     period: "Cretaceous",
     age: {
       maxMa: 68,
@@ -267,7 +268,54 @@ export const tyrannosaurusRex: SpeciesInput = {
         citationIds: ["persons-2019"],
       },
     ],
-    hotspotNotes: [],
+    // One note per anatomy hotspot (presentation.hotspots); claims reuse the sources above.
+    hotspotNotes: [
+      {
+        hotspotId: "jaws",
+        title: "Teeth and bite",
+        body: {
+          text: "Its 60 serrated teeth reached up to 20 cm long. Bite forces estimated at up to about 34,500 newtons let it crack and fragment bone.",
+          level: 2,
+          citationIds: ["nhm-tyrannosaurus", "gignac-erickson-2017"],
+        },
+      },
+      {
+        hotspotId: "smell",
+        title: "Sense of smell",
+        body: {
+          text: "Inside the skull, the brain cavity has very large olfactory bulbs — the regions that process smell — so a keen sense of smell is likely.",
+          level: 2,
+          citationIds: ["brochu-2003", "nhm-tyrannosaurus"],
+        },
+      },
+      {
+        hotspotId: "hand",
+        title: "Two-fingered hand",
+        body: {
+          text: "Each hand had two functional fingers. A third finger was reduced to a remnant or missing.",
+          level: 1,
+          citationIds: ["padian-2022"],
+        },
+      },
+      {
+        hotspotId: "legs",
+        title: "Built to walk, not sprint",
+        body: {
+          text: "To run fast, an adult would have needed an unrealistically large mass of leg muscle, so it was probably not a fast runner.",
+          level: 2,
+          citationIds: ["hutchinson-garcia-2002"],
+        },
+      },
+      {
+        hotspotId: "skin",
+        title: "Scaly skin",
+        body: {
+          text: "Fossil skin from _Tyrannosaurus_ and its close relatives shows scales, not feathers.",
+          level: 1,
+          citationIds: ["bell-2017"],
+        },
+      },
+    ],
     citations: [
       {
         id: "nhm-tyrannosaurus",
@@ -568,12 +616,44 @@ export const tyrannosaurusRex: SpeciesInput = {
       ],
       limits: { minDistance: 2, maxDistance: 45, maxPolarAngle: 1.5 },
     },
-    modes: ["studio"],
-    hotspots: [],
+    modes: ["studio", "anatomy"],
+    // Surface points from scripts/blender/surface_points.py (ray casts against the prepared GLB, 2026-10-16).
+    hotspots: [
+      {
+        id: "jaws",
+        label: "Teeth and bite",
+        position: [0.3, 3.12, 5.5],
+        view: { position: [3.4, 3.6, 8.2], target: [0.2, 3.2, 5.2] },
+      },
+      {
+        id: "smell",
+        label: "Sense of smell",
+        position: [0.05, 4.18, 4.45],
+        view: { position: [2.6, 5.6, 7.4], target: [0, 3.9, 4.6] },
+      },
+      {
+        id: "hand",
+        label: "Hand",
+        position: [0.58, 2.05, 3.55],
+        view: { position: [4.6, 2.6, 7.2], target: [0.4, 2.3, 3.4] },
+      },
+      {
+        id: "legs",
+        label: "Legs",
+        position: [1.02, 2.3, 1.0],
+        view: { position: [8.5, 2.6, 3.5], target: [0.6, 1.8, 0.6] },
+      },
+      {
+        id: "skin",
+        label: "Skin",
+        position: [0.47, 3.4, 3.5],
+        view: { position: [4.6, 3.8, 5.6], target: [0.4, 3.3, 3.2] },
+      },
+    ],
     a11y: {
       modelDescription:
         "3D model of Tyrannosaurus rex standing on two legs, body and tail held level, mouth open.",
     },
   },
-  review: { status: "reviewed", reviewedOn: "2026-10-16" },
+  review: { status: "published", reviewedOn: "2026-10-16" },
 };

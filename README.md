@@ -64,7 +64,7 @@ docs/               PRD, architecture, research, progress log
 
 ## Documentation
 
-Start with [docs/PROGRESS.md](docs/PROGRESS.md). Decisions and their reasons are in [docs/architecture.md](docs/architecture.md).
+Start with [docs/PROGRESS.md](docs/PROGRESS.md). To add a species, follow [docs/adding-a-species.md](docs/adding-a-species.md). Decisions and their reasons are in [docs/architecture.md](docs/architecture.md).
 
 ## Credits
 

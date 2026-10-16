@@ -15,6 +15,7 @@ export const triceratopsHorridus: SpeciesInput = {
   synonyms: ["Ceratops horridus Marsh, 1889"],
   content: {
     taxonomy: ["Dinosauria", "Ornithischia", "Ceratopsidae", "Chasmosaurinae"],
+    group: "Horned dinosaur",
     period: "Cretaceous",
     age: {
       maxMa: 68,
@@ -330,5 +331,5 @@ export const triceratopsHorridus: SpeciesInput = {
       },
     ],
   },
-  review: { status: "reviewed", reviewedOn: "2026-10-16" },
+  review: { status: "published", reviewedOn: "2026-10-16" },
 };

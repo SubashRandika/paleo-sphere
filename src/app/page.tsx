@@ -1,11 +1,12 @@
-import Link from "next/link";
+import { toSummaries } from "@/domain/species/explorer";
 import { getAllSpecies } from "@/domain/species/repository";
+import { SpeciesBrowser } from "@/features/explorer/SpeciesBrowser";
 
 export default function HomePage() {
-  const species = getAllSpecies();
+  const species = toSummaries(getAllSpecies());
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-12 px-4 py-16 sm:px-6">
+    <div className="mx-auto w-full max-w-6xl space-y-12 px-4 py-16 sm:px-6">
       <header className="max-w-2xl space-y-4">
         <h1 className="font-display text-4xl leading-tight sm:text-5xl">
           Dinosaurs as the fossils describe them — and where the evidence runs out.
@@ -18,26 +19,9 @@ export default function HomePage() {
 
       <section aria-labelledby="species-heading" className="space-y-4">
         <h2 id="species-heading" className="label">
-          Species
+          Species, oldest first
         </h2>
-        <ul className="border-t border-rule">
-          {species.map((s) => (
-            <li key={s.slug} className="border-b border-rule">
-              <Link
-                href={`/species/${s.slug}`}
-                className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-1 py-4 hover:bg-surface"
-              >
-                <span className="space-y-1">
-                  <span className="block font-display text-2xl italic">{s.scientificName}</span>
-                  {!s.presentation && (
-                    <span className="label block">Text only · 3D model in preparation</span>
-                  )}
-                </span>
-                <span className="font-mono text-xs whitespace-nowrap text-muted">{s.authority}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <SpeciesBrowser species={species} />
       </section>
     </div>
   );

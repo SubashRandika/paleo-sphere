@@ -19,6 +19,7 @@ export const mamenchisaurus: SpeciesInput = {
   synonyms: [],
   content: {
     taxonomy: ["Dinosauria", "Saurischia", "Sauropodomorpha", "Sauropoda", "Eusauropoda"],
+    group: "Sauropod",
     period: "Jurassic",
     age: {
       maxMa: 155,
@@ -270,5 +271,5 @@ export const mamenchisaurus: SpeciesInput = {
       },
     ],
   },
-  review: { status: "reviewed", reviewedOn: "2026-10-16" },
+  review: { status: "published", reviewedOn: "2026-10-16" },
 };
