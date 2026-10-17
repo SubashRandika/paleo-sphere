@@ -32,10 +32,10 @@ test("species text is in the server HTML, not rendered by client JavaScript", as
   await context.close();
 });
 
-test("home page lists all five species, each with its model", async ({ page }) => {
+test("home page lists all eight species, each with its model", async ({ page }) => {
   await page.goto("/");
   const list = page.getByRole("region", { name: "Species" }).getByRole("listitem");
-  await expect(list).toHaveCount(5);
+  await expect(list).toHaveCount(8);
   await expect(page.getByText("3D model in preparation")).toHaveCount(0);
 });
 
@@ -46,6 +46,9 @@ const MARKERS = {
   "allosaurus-fragilis": 4,
   mamenchisaurus: 4,
   "tyrannosaurus-rex": 5,
+  "dilophosaurus-wetherilli": 4,
+  "brontosaurus-excelsus": 4,
+  "brachiosaurus-altithorax": 4,
 };
 
 for (const [slug, markers] of Object.entries(MARKERS)) {
@@ -71,6 +74,11 @@ for (const [slug, markers] of Object.entries(MARKERS)) {
 
 test("source markers jump to the matching entry in the sources list", async ({ page }) => {
   await page.goto("/species/stegosaurus-stenops");
+  // Wait for the stage to settle first: while the 3D viewer loads, the layout above the article can
+  // still shift, and under a busy CPU (SwiftShader, parallel workers) the click lands on the canvas.
+  await expect(page.locator("figure[data-viewer-state]")).toHaveAttribute("data-viewer-state", "ready", {
+    timeout: 60_000,
+  });
   const marker = page.getByRole("link", { name: /^Source \d+$/ }).first();
   const target = await marker.getAttribute("href");
   await marker.click();

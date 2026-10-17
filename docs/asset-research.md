@@ -118,3 +118,20 @@ Phase 5: 12 m is the typical adult length given by the Natural History Museum, L
 1. Download the *T. rex* candidate; inspect in a glTF viewer / Blender: real map resolution, UV quality, scale, polycount, presence of eyes/teeth/claws as separate materials.
 2. Confirm the license on the model's page and the download package (they can differ from API metadata).
 3. Record findings in this file, then mark the asset accepted or rejected.
+
+## 8. Jurassic additions — 2026-10-17
+
+Sweep of ~55 Jurassic taxa (Sketchfab Data API v3, `downloadable=true`, non-ND), then each uploader's other uploads checked for rips.
+
+**Excluded wholesale:** re-uploads of commercial DAZ "Dinoraul" models (SammyTheCitipati, slang107123456789, kenchoo, nobilishornet/nobilishornet2, TimFallas, lentoneulb, Jrcat25 — identical face counts across uploaders); game/film/toy rips (Jurrassicgamer, lazaronogueira832 — *Jurassic World Evolution/Alive*; ericksalinasr07 — *Carnivores*, *Saurian*, *Dinosaur World*; davibastos2345 — *The Isle*; LostModels2025; SweetKitchen5514); the *Jurassic Park* frilled *Dilophosaurus*. Untextured meshes (budiastuti1271 and others) fail the realism bar.
+
+| Species | Model | Creator | License | Outcome |
+|---|---|---|---|---|
+| *Dilophosaurus wetherilli* | [Dilophosaurus](https://sketchfab.com/3d-models/dilophosaurus-d09b3aa874db4e1cbf29a14797ca351f) | Marcel Schanz | CC BY 4.0 | **Used** |
+| *Brontosaurus excelsus* | [Brontosaurus](https://sketchfab.com/3d-models/brontosaurus-d6f0c59430c346c6adcfb07fb5424756) | PAndras | CC BY 4.0 | **Used** |
+| *Brachiosaurus altithorax* | [Brachiosaurus realistic](https://sketchfab.com/3d-models/brachiosaurus-realistic-0846c18d1b0e4fdfba4e9c528ae5ecac) | Nazar Striletskyj | CC BY 4.0 | **Used** |
+| *Anchiornis huxleyi* | [Anchiornis huxleyi](https://sketchfab.com/3d-models/anchiornis-huxleyi-6b073b68c01a47b48f698d889b18b4ba) | LATICC-UAQ (scan of a sculpture) | CC BY 4.0 | Declined by you |
+| *Archaeopteryx lithographica* | [Archaeopteryx](https://sketchfab.com/3d-models/archaeopteryx-cbec5591c584438392824d13fbef401b) | khata | CC BY 4.0 | Declined by you (wing colours contradict the evidence) |
+| *Torvosaurus*, *Dacentrurus*, *Sinraptor* | Allosaurus28YT uploads | — | CC BY | Not used: provenance unclear (a *Torvosaurus* with nearly the face count of a known game rip) |
+| *Stegosaurus* vs *Allosaurus* mount | [DMNS display](https://sketchfab.com/3d-models/stegosaurus-stenops-vs-allosaurus-fragilis-800d25faa9514698898dd10fe401bc2c) | VibrantNebula (photogrammetry) | CC BY 4.0 | Candidate for fossil comparison later |
+

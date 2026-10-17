@@ -6,8 +6,9 @@
 - **Phase:** 4 — Realism and asset pipeline (implemented 2026-10-16)
 - **Phase:** 5 — Scientific species content (approved 2026-10-16; records published)
 - **Phase:** 6 — Complete species explorer (in progress)
-- **Task:** All five species have an idle animation and anatomy markers (2026-10-17); *Triceratops* and *T. rex* have fossil comparison. Task 3.6 (real-device check) still open
-- **Next recommended action:** Review the animations and markers in the browser (`docs/lookdev/species-models.md`), then approve Phase 6 or list changes.
+- **Task:** Three more Jurassic species (your request, 2026-10-17): *Dilophosaurus wetherilli*, *Brontosaurus excelsus*, *Brachiosaurus altithorax* — researched, modelled, animated, with anatomy markers (`docs/lookdev/species-models.md`). Records are `reviewed` (shown, not indexed) until you sign them off. Task 3.6 (real-device check) still open
+- **Phase 7:** a first habitat (Morrison floodplain) was built on 2026-10-17 and reverted at your decision; not restarted.
+- **Next recommended action:** Review the three new species in the browser and their research notes (`docs/research/`), then publish them (status `published`) or list changes.
 
 ## Phase checklist
 
@@ -56,7 +57,8 @@
   - [x] 6.6 `docs/adding-a-species.md`; tests: 107 unit/component, 42 e2e (desktop + Pixel 7)
   - [x] Rig test for the *T. rex* idle animation (your request): **passed** for moderate motion, see `lookdev/tyrannosaurus-rex-rig.md`
   - [x] *T. rex* idle animation: 12 s looping clip, Play/Pause in the toolbar, caption + level-4 note, CC BY modification recorded (`architecture.md` §17). A synthesised breathing sound was tried and removed at your review (not realistic enough)
-- [ ] Phase 7 — Habitat and cinematic presentation
+  - [x] Three more Jurassic species (your request, 2026-10-17): *Dilophosaurus*, *Brontosaurus*, *Brachiosaurus*. Sketchfab sweep of ~55 Jurassic taxa; two further picks (*Anchiornis*, *Archaeopteryx*) declined by you, and no other legitimate model of adequate quality exists. 74/74 citations verify
+- [ ] Phase 7 — Habitat and cinematic presentation (first attempt reverted, 2026-10-17)
 - [ ] Phase 8 — Quality, accessibility, and optimization
 - [ ] Phase 9 — Deployment and release
 
@@ -95,6 +97,9 @@
 | 2026-10-17 | Fossil scans are scaled only for display and say nothing about size; the skeleton is shown lying on its side, as mounted. | The scan units are undocumented and the skull's original specimen is not named, so any size statement would be invented. |
 | 2026-10-17 | Curved models are scaled along the midline (snout to tail tip), not the bounding box. | Published lengths follow the backbone; the *Mamenchisaurus* box was 1.24× shorter than its body. |
 | 2026-10-17 | All materials are forced non-metallic in the web build. | Skin, horn and bone are dielectrics; two downloads had metallic = 1 with stray metal pixels. |
+| 2026-10-17 | Added *Dilophosaurus*, *Brontosaurus*, *Brachiosaurus* (your choice of 3 of 5 proposed). | Only models passing the licence and quality rules; see `asset-research.md` §8. |
+| 2026-10-17 | Fixed: species pages rendered zoomed out on phones (layout 1,250 px wide on a 412 px screen). | The phone species strip's screen-reader labels are absolutely positioned and escaped its scroll container; the container is now `relative`. Found while chasing a mobile e2e failure. |
+| 2026-10-17 | *Brontosaurus* model scaled to the type specimen's femur, not to the 1883 length. | A direct bone measurement (1.725 m, YPM 1980) beats an 1883 estimate; the article shows Marsh's figure with its date. |
 | 2026-10-16 | Light theme: dark stays the default; the visitor's choice is stored. | CLAUDE.md §10 "dark-first … optional light theme". Following the OS setting instead is a one-line change in `THEME_INIT_SCRIPT`. |
 
 ## Assumptions
@@ -116,6 +121,9 @@
 | *Triceratops* | Triceratops | DailyArt | CC BY-NC 4.0 | `license.txt`, 2026-10-17 |
 | *Stegosaurus* | Stegosaurus | PAndras | CC BY 4.0 | `license.txt`, 2026-10-17 |
 | *Allosaurus* | Animated Allosaurus (Free) | Anees Animates | CC BY-NC 4.0 | `license.txt`, 2026-10-17 |
+| *Dilophosaurus* | Dilophosaurus | Marcel Schanz | CC BY 4.0 | `license.txt`, 2026-10-17 |
+| *Brontosaurus* | Brontosaurus | PAndras | CC BY 4.0 | `license.txt`, 2026-10-17 |
+| *Brachiosaurus* | Brachiosaurus realistic | Nazar Striletskyj | CC BY 4.0 | `license.txt`, 2026-10-17 |
 | *Mamenchisaurus* | Mamen River Dragon | DailyArt | CC BY-NC 4.0 | `license.txt`, 2026-10-17 |
 | *Triceratops* (fossil) | Triceratops Horridus Marsh (USNM PAL 500000, cast) | Smithsonian Institution | CC0 1.0 | `license.txt`, 2026-10-17 |
 | *T. rex* (fossil) | Vertebrate: Tyrannosaurus rex skull (MOTE), cast | Digital Atlas of Ancient Life (Emily Hauf) | CC0 1.0 | `license.txt`, 2026-10-17 |
@@ -126,6 +134,7 @@
 - Anatomy-mode camera moves run at ~30 fps (median 33 ms) on an integrated Radeon 860M, with the static model as well as the rigged one: each of the 5 markers raycasts the whole model on every frame. Fix proposed for Phase 8: test occlusion only when the camera settles, or against a low-poly stand-in.
 - Free-only assets: game-ready sculpts (~10k–100k faces), not film-grade. The *Triceratops* is the weakest (11k triangles, soft silhouette up close); the *Stegosaurus* texture is very dark.
 - Three CC BY-NC models (*Triceratops*, *Allosaurus*, *Mamenchisaurus*) must be replaced if the project ever becomes commercial.
+- *Brontosaurus*: the only published length found is Marsh's 1883 estimate (about 15 m); the model is scaled to the type specimen's femur instead (about 21 m, ±10 %). *Brachiosaurus*: no normal map (detail from the colour texture only); purple colour is the artist's.
 - Fossil scans carry no size statement (undocumented scan units; the skull's original specimen is not named). The *T. rex* skull is 191k triangles even on mobile; reduce further if phones struggle (Task 3.6).
 - The idle rigs suit small, slow movements only (as for the *T. rex*); no walking. Weights were checked with renders, not painted by hand.
 - WebKit (Safari) not yet in the Playwright matrix; add before Phase 8.

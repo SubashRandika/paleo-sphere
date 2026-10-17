@@ -12,7 +12,13 @@ What it does, in order:
      is often a T-pose; the pose shown on Sketchfab usually comes from an animation frame. The
      importer's bone display shapes (an "Icosphere") are removed, they are not part of the model.
      --rotate turns the whole model (world axes, Blender Z up) when the source is lying on its side
-     or faces along the wrong axis.
+     or faces along the wrong axis. --keep-materials drops every mesh whose material does not match
+     (e.g. a scene backdrop and ground shipped with the animal). --join merges all meshes into one
+     object (a model split into dozens of pieces), and --decimate <ratio> reduces dense meshes with
+     Blender's collapse decimation, which keeps UVs — done before rigging, so the rig is fitted to
+     the mesh that ships. --merge-distance <units> welds coincident vertices first (source units):
+     some exports are "triangle soup", every triangle with its own vertices, which no simplifier can
+     reduce cleanly. UVs live on face corners in Blender, so seams survive the weld.
   2. Un-parents every mesh while keeping its world transform, then deletes helper empties.
      Sketchfab exports nest meshes under several empties (FBX cm→m scale, Z-up→Y-up rotations).
   3. Applies all transforms, so vertex positions are final and every object has an identity matrix.
@@ -26,10 +32,12 @@ Prints a JSON report on the last line prefixed with "REPORT ".
 
 import argparse
 import json
+import re
 import sys
 
 import math
 
+import bmesh
 import bpy
 from mathutils import Matrix, Vector
 
@@ -46,6 +54,14 @@ def parse_args():
         default="current",
         help="Rigged models: rest (bind pose), frame:N (an animation frame), or current (as imported)",
     )
+    p.add_argument(
+        "--keep-materials",
+        default="",
+        help="Regex: keep only meshes with a material whose name matches (drops scenery shipped with a model)",
+    )
+    p.add_argument("--join", action="store_true", help="Merge all meshes into one object")
+    p.add_argument("--merge-distance", type=float, default=None, help="Weld vertices closer than this (source units)")
+    p.add_argument("--decimate", type=float, default=None, help="Collapse-decimate to this triangle ratio")
     p.add_argument(
         "--rotate",
         default="",
@@ -92,6 +108,12 @@ def main():
                 bpy.ops.object.modifier_apply(modifier=md.name)
 
     meshes = [o for o in scene.objects if o.type == "MESH"]
+    if args.keep_materials:
+        keep = re.compile(args.keep_materials)
+        dropped = [o for o in meshes if not any(s.material and keep.search(s.material.name) for s in o.material_slots)]
+        for o in dropped:
+            bpy.data.objects.remove(o, do_unlink=True)
+        meshes = [o for o in scene.objects if o.type == "MESH"]
     if not meshes:
         raise SystemExit("No meshes found in input")
 
@@ -111,6 +133,27 @@ def main():
             o.matrix_world = turn @ o.matrix_world
     select_only(meshes)
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+
+    # 3b. Optional merge and simplification.
+    if args.join and len(meshes) > 1:
+        select_only(meshes)
+        bpy.ops.object.join()
+        meshes = [o for o in bpy.context.scene.objects if o.type == "MESH"]
+    if args.merge_distance:
+        for o in meshes:
+            bm = bmesh.new()
+            bm.from_mesh(o.data)
+            before = len(bm.verts)
+            bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=args.merge_distance)
+            print(f"WELD {o.name}: {before} -> {len(bm.verts)} vertices")
+            bm.to_mesh(o.data)
+            bm.free()
+    if args.decimate:
+        for o in meshes:
+            mod = o.modifiers.new("Decimate", "DECIMATE")
+            mod.ratio = args.decimate
+            select_only([o])
+            bpy.ops.object.modifier_apply(modifier=mod.name)
 
     # 4. Centre on X/Y, feet on the ground.
     lo, hi = world_bounds(meshes)

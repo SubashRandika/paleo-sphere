@@ -1,0 +1,138 @@
+{
+  "comment": "Skeleton for dilophosaurus-wetherilli.glb (glTF axes, +z head, metres). Joints read off profile_render.py side/top views and leg slices, 2026-10-17. Standing pose, legs side by side, so the right side (.R) is mirrored. Eyes follow the head.",
+  "weld": 0.0005,
+  "bones": [
+    {
+      "name": "root",
+      "head": [0, 0, 0.95],
+      "tail": [0, 0, 1.75],
+      "deform": false
+    },
+    {
+      "name": "pelvis",
+      "head": [0, 1.55, 0.95],
+      "tail": [0, 1.48, 0.45],
+      "parent": "root"
+    },
+    {
+      "name": "spine1",
+      "head": [0, 1.55, 0.95],
+      "tail": [0, 1.6, 1.45],
+      "parent": "pelvis"
+    },
+    {
+      "name": "spine2",
+      "head": [0, 1.6, 1.45],
+      "tail": [0, 1.6, 1.95],
+      "parent": "spine1",
+      "connect": true
+    },
+    {
+      "name": "spine3",
+      "head": [0, 1.6, 1.95],
+      "tail": [0, 1.58, 2.3],
+      "parent": "spine2",
+      "connect": true
+    },
+    {
+      "name": "neck1",
+      "head": [0, 1.58, 2.3],
+      "tail": [0, 1.72, 2.62],
+      "parent": "spine3",
+      "connect": true
+    },
+    {
+      "name": "neck2",
+      "head": [0, 1.72, 2.62],
+      "tail": [0, 1.88, 2.95],
+      "parent": "neck1",
+      "connect": true
+    },
+    {
+      "name": "head",
+      "head": [0, 1.88, 2.95],
+      "tail": [0, 1.68, 3.5],
+      "parent": "neck2",
+      "connect": true
+    },
+    {
+      "name": "tail1",
+      "head": [0, 1.48, 0.45],
+      "tail": [0, 1.42, -0.3],
+      "parent": "pelvis",
+      "connect": true
+    },
+    {
+      "name": "tail2",
+      "head": [0, 1.42, -0.3],
+      "tail": [0, 1.36, -1.1],
+      "parent": "tail1",
+      "connect": true
+    },
+    {
+      "name": "tail3",
+      "head": [0, 1.36, -1.1],
+      "tail": [0, 1.28, -1.9],
+      "parent": "tail2",
+      "connect": true
+    },
+    {
+      "name": "tail4",
+      "head": [0, 1.28, -1.9],
+      "tail": [0, 1.22, -2.7],
+      "parent": "tail3",
+      "connect": true
+    },
+    {
+      "name": "tail5",
+      "head": [0, 1.22, -2.7],
+      "tail": [0, 1.17, -3.45],
+      "parent": "tail4",
+      "connect": true
+    },
+    {
+      "name": "thigh.R",
+      "head": [0.24, 1.42, 0.95],
+      "tail": [0.28, 0.85, 1.1],
+      "parent": "pelvis"
+    },
+    {
+      "name": "shin.R",
+      "head": [0.28, 0.85, 1.1],
+      "tail": [0.3, 0.3, 0.85],
+      "parent": "thigh.R",
+      "connect": true
+    },
+    {
+      "name": "foot.R",
+      "head": [0.3, 0.3, 0.85],
+      "tail": [0.33, 0.03, 1.15],
+      "parent": "shin.R",
+      "connect": true
+    },
+    {
+      "name": "upperarm.R",
+      "head": [0.2, 1.36, 2.0],
+      "tail": [0.3, 1.05, 2.1],
+      "parent": "spine3"
+    },
+    {
+      "name": "forearm.R",
+      "head": [0.3, 1.05, 2.1],
+      "tail": [0.4, 0.9, 2.45],
+      "parent": "upperarm.R",
+      "connect": true
+    },
+    {
+      "name": "hand.R",
+      "head": [0.4, 0.9, 2.45],
+      "tail": [0.43, 0.94, 2.66],
+      "parent": "forearm.R",
+      "connect": true
+    }
+  ],
+  "rigid": {
+    "eye001_eyeball_0": "head",
+    "eye_lense001_eye lense_0": "head"
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "comment": "Skeleton for brachiosaurus-altithorax.glb (glTF axes, +z head, metres). Joints read off profile_render.py side/top views and leg slices, 2026-10-17. Standing square, so the right side (.R) is mirrored. The neck rises steeply; five neck bones let the look bend it as a curve.",
+  "weld": 0.0005,
+  "bones": [
+    {
+      "name": "root",
+      "head": [0, 0, -0.8],
+      "tail": [0, 0, 0.0],
+      "deform": false
+    },
+    {
+      "name": "pelvis",
+      "head": [0, 4.2, -0.8],
+      "tail": [0, 4.0, -1.9],
+      "parent": "root"
+    },
+    {
+      "name": "spine1",
+      "head": [0, 4.2, -0.8],
+      "tail": [0, 4.55, 0.6],
+      "parent": "pelvis"
+    },
+    {
+      "name": "spine2",
+      "head": [0, 4.55, 0.6],
+      "tail": [0, 4.95, 2.0],
+      "parent": "spine1",
+      "connect": true
+    },
+    {
+      "name": "spine3",
+      "head": [0, 4.95, 2.0],
+      "tail": [0, 5.45, 3.7],
+      "parent": "spine2",
+      "connect": true
+    },
+    {
+      "name": "neck1",
+      "head": [0, 5.45, 3.7],
+      "tail": [0, 6.35, 4.75],
+      "parent": "spine3",
+      "connect": true
+    },
+    {
+      "name": "neck2",
+      "head": [0, 6.35, 4.75],
+      "tail": [0, 7.5, 5.4],
+      "parent": "neck1",
+      "connect": true
+    },
+    {
+      "name": "neck3",
+      "head": [0, 7.5, 5.4],
+      "tail": [0, 8.8, 5.85],
+      "parent": "neck2",
+      "connect": true
+    },
+    {
+      "name": "neck4",
+      "head": [0, 8.8, 5.85],
+      "tail": [0, 9.9, 6.45],
+      "parent": "neck3",
+      "connect": true
+    },
+    {
+      "name": "neck5",
+      "head": [0, 9.9, 6.45],
+      "tail": [0, 10.75, 7.25],
+      "parent": "neck4",
+      "connect": true
+    },
+    {
+      "name": "head",
+      "head": [0, 10.75, 7.25],
+      "tail": [0, 10.75, 9.1],
+      "parent": "neck5",
+      "connect": true
+    },
+    {
+      "name": "tail1",
+      "head": [0, 4.0, -1.9],
+      "tail": [0, 3.55, -2.6],
+      "parent": "pelvis",
+      "connect": true
+    },
+    {
+      "name": "tail2",
+      "head": [0, 3.55, -2.6],
+      "tail": [0, 2.85, -4.2],
+      "parent": "tail1",
+      "connect": true
+    },
+    {
+      "name": "tail3",
+      "head": [0, 2.85, -4.2],
+      "tail": [0, 2.2, -5.85],
+      "parent": "tail2",
+      "connect": true
+    },
+    {
+      "name": "tail4",
+      "head": [0, 2.2, -5.85],
+      "tail": [0, 1.75, -7.5],
+      "parent": "tail3",
+      "connect": true
+    },
+    {
+      "name": "tail5",
+      "head": [0, 1.75, -7.5],
+      "tail": [0, 1.25, -9.2],
+      "parent": "tail4",
+      "connect": true
+    },
+    {
+      "name": "thigh.R",
+      "head": [0.9, 3.4, -0.6],
+      "tail": [0.97, 1.9, -0.7],
+      "parent": "pelvis"
+    },
+    {
+      "name": "shin.R",
+      "head": [0.97, 1.9, -0.7],
+      "tail": [0.97, 0.6, -0.95],
+      "parent": "thigh.R",
+      "connect": true
+    },
+    {
+      "name": "foot.R",
+      "head": [0.97, 0.6, -0.95],
+      "tail": [1.03, 0.05, -0.5],
+      "parent": "shin.R",
+      "connect": true
+    },
+    {
+      "name": "upperarm.R",
+      "head": [1.0, 4.6, 3.4],
+      "tail": [1.15, 3.0, 3.3],
+      "parent": "spine3"
+    },
+    {
+      "name": "forearm.R",
+      "head": [1.15, 3.0, 3.3],
+      "tail": [1.1, 0.8, 3.55],
+      "parent": "upperarm.R",
+      "connect": true
+    },
+    {
+      "name": "hand.R",
+      "head": [1.1, 0.8, 3.55],
+      "tail": [1.08, 0.05, 3.85],
+      "parent": "forearm.R",
+      "connect": true
+    }
+  ]
+}

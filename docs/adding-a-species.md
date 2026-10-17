@@ -38,6 +38,8 @@ Leave `presentation` out until a model is ready: the page then shows the researc
    - Rigged downloads: `--pose rest` or `--pose frame:N` freezes the pose before the rig is dropped (a bind pose is often a T-pose). `--rotate y:-90` turns a model lying on the wrong axis; check first that the pose is not how the specimen really is.
    - Curved bodies (a neck or tail swinging sideways): measure the length along the skeleton with `scripts/blender/midline_length.py --target <metres>` and pass its `prepareLength` as `--length`.
    - Dense scans: `npm run asset:build -- ... --simplify 0.25`.
+   - Scenery shipped with the animal: `--keep-materials "<regex>"` keeps only meshes with a matching material. A model in many pieces: `--join`. Dense sculpts: `--decimate <ratio>` before rigging; if the export is "triangle soup" (every triangle with its own vertices; decimation leaves a see-through, striped mesh), add `--merge-distance 0.0002` to weld it first.
+   - Legs in a walking pose overlap in silhouettes: slice the mesh at several heights to find each leg (connected vertex clusters below the body).
 4. **Add `presentation`**:
    - **Model paths and attribution**, including `modifications`, which CC BY requires.
    - **Appearance notes:** which features match evidence and which are interpretation.

@@ -19,8 +19,11 @@ const fixture = (over: Partial<SpeciesSummary>): SpeciesSummary => ({
 describe("toSummaries", () => {
   it("lists every shown species, oldest first", () => {
     expect(all.map((s) => s.slug)).toEqual([
+      "dilophosaurus-wetherilli",
       "mamenchisaurus",
       "allosaurus-fragilis",
+      "brachiosaurus-altithorax",
+      "brontosaurus-excelsus",
       "stegosaurus-stenops",
       "triceratops-horridus",
       "tyrannosaurus-rex",
@@ -40,15 +43,20 @@ describe("toSummaries", () => {
 describe("filterSpecies", () => {
   it("matches scientific names, common names and groups, ignoring case and markup", () => {
     expect(filterSpecies(all, { query: "t. rex" }).map((s) => s.slug)).toEqual(["tyrannosaurus-rex"]);
-    expect(filterSpecies(all, { query: "SAUROPOD" }).map((s) => s.slug)).toEqual(["mamenchisaurus"]);
+    expect(filterSpecies(all, { query: "SAUROPOD" }).map((s) => s.slug)).toEqual([
+      "mamenchisaurus",
+      "brachiosaurus-altithorax",
+      "brontosaurus-excelsus",
+    ]);
     expect(filterSpecies(all, { query: "  " })).toHaveLength(all.length);
   });
 
   it("combines period, diet and group filters", () => {
     expect(filterSpecies(all, { period: "Jurassic", diet: "carnivore" }).map((s) => s.slug)).toEqual([
+      "dilophosaurus-wetherilli",
       "allosaurus-fragilis",
     ]);
-    expect(filterSpecies(all, { group: "Theropod" })).toHaveLength(2);
+    expect(filterSpecies(all, { group: "Theropod" })).toHaveLength(3);
     expect(filterSpecies(all, { period: "Triassic" })).toEqual([]);
   });
 

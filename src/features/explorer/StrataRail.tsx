@@ -41,7 +41,12 @@ export function StrataRail({ species }: { species: readonly SpeciesSummary[] }) 
 
   return (
     <>
-      <nav aria-label="Species by geological age" className="overflow-x-auto border-b border-rule lg:hidden">
+      {/* relative: the chips' screen-reader labels are absolutely positioned; without a positioned
+          scroll container they escape its clipping and widen the page on phones. */}
+      <nav
+        aria-label="Species by geological age"
+        className="relative overflow-x-auto border-b border-rule lg:hidden"
+      >
         <ol className="flex w-max gap-2 px-4 py-3">
           {species.map((s) => (
             <li key={s.slug}>

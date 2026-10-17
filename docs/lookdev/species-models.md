@@ -58,3 +58,29 @@ Playback on the integrated Radeon 860M (Chrome, 1440 × 900): 60 fps for every s
 Four markers per species. Every note is a claim already in that species' record, word for word, with its evidence level and sources (no new claims): *Triceratops* horns, frill, beak and cheek teeth, skin; *Stegosaurus* plates, tail spikes, small head, toothless jaw tip; *Allosaurus* brow horns, teeth, skull strength, neck muscle; *Mamenchisaurus* small head, neck length, air-filled neck bones, neck ribs.
 
 Markers sit 4 cm off the surface (`surface_points.py` now prints a `marker` position). Exactly on the surface, half of them were hidden at random: the occlusion test compared two equal distances, and the web build's compressed vertex positions move the surface by millimetres.
+
+## Three more Jurassic species (2026-10-17)
+
+*Dilophosaurus wetherilli*, *Brontosaurus excelsus* and *Brachiosaurus altithorax*, with the same features as the first five: researched record, model, poster, camera presets, 12 s idle behind the Play button, four anatomy markers. Sources were chosen after a sweep of about 55 Jurassic taxa on Sketchfab: most free-looking models were re-uploads of commercial DAZ ("Dinoraul") models or game/film/toy rips, excluded under `asset-research.md` §1.
+
+![Dilophosaurus, Brontosaurus, Brachiosaurus in studio mode; one anatomy marker each](img/jurassic-three.jpg)
+
+| Model | Source | Licence | Preparation | Scaled to | Triangles | High / mobile |
+|---|---|---|---|---|---|---|
+| *Dilophosaurus* | "Dilophosaurus", Marcel Schanz (artist of our *T. rex*) | CC BY 4.0 | Turned 180° to face +z (`--rotate z:180`); stored in centimetres | 7 m (box; body straight) | 61k | 5.13 / 2.13 MB |
+| *Brontosaurus* | "Brontosaurus", PAndras (artist of our *Stegosaurus*) | CC BY 4.0 | Backdrop and grass dropped (`--keep-materials "^null$"`), parts merged, decimated to 35 %; the rig's 0.5 mm weld then removed duplicate surfaces (106k → 48k) | Thigh bone ≈ 1.73 m (type specimen femur) → box 18.2 m, ≈ 21 m along the backbone | 48k | 2.14 / 1.16 MB |
+| *Brachiosaurus* | "Brachiosaurus realistic", Nazar Striletskyj | CC BY 4.0 | 64 parts merged, vertices welded (`--merge-distance 0.0002`: 3.93M → 0.98M, the export was "triangle soup"), then decimated to 6 % | 22 m along the backbone → box 18.4 m (neck nearly upright) | 118k | 1.78 / 1.38 MB |
+
+Scaling notes: the *Brachiosaurus* midline was traced off the gridded side view (26.3 m at a 22 m box, ratio 1.20). For *Brontosaurus* the only cited length is Marsh's 1883 estimate (about 15 m), so the model is scaled to the type specimen's femur instead, read off the silhouette from hip joint to knee (±10 %); the appearance note says so. The *Brachiosaurus* colour (purple) is the artist's and labelled as interpretation; it has no normal map, so surface detail comes from its colour texture.
+
+New `prepare_model.py` options: `--keep-materials <regex>`, `--join`, `--merge-distance <units>`, `--decimate <ratio>`. Lesson: decimating an unwelded "triangle soup" shrinks each triangle on its own and leaves a see-through, striped mesh; neither Blender's decimate nor meshoptimizer can simplify it until coincident vertices are welded.
+
+### Rigs, idle and anatomy
+
+| | Bones | Idle | Markers (each note repeats a claim already in the record) |
+|---|---|---|---|
+| *Dilophosaurus* | 25, legs mirrored | Biped: chest joins the look (14° left, 8° right), five-bone tail wave | Head crests, notch in the jaw, injured arm (Senter & Juengst 2016), light build |
+| *Brontosaurus* | 30, legs per side (walking pose, both forefeet lifted) | Look spread over five neck bones, seven-bone tail wave | Small head, long light neck, shoulder blade (Tschopp et al. 2015), thigh bone |
+| *Brachiosaurus* | 28, legs mirrored | Look over five neck bones and the head; shoulders still so the front feet stay planted | Long front legs, long deep trunk, long light neck, the skull found in 1883 |
+
+Leg joints were found by slicing each mesh at several heights (connected vertex clusters below the body), since walking poses overlap in silhouettes. Checks on the Radeon 860M (Chrome, 1440 × 900): playback 60 fps for all three (median 16.7 ms, p95 16.8 ms), no WebGL errors; all 12 markers visible from the default views and after selection.

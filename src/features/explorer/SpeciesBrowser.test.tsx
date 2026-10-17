@@ -12,7 +12,7 @@ describe("SpeciesBrowser", () => {
   it("lists every species, oldest first, linking to its page", () => {
     render(<SpeciesBrowser species={species} />);
     expect(cards().map((a) => a.getAttribute("href"))).toEqual(species.map((s) => `/species/${s.slug}`));
-    expect(screen.getByRole("status")).toHaveTextContent("5 species");
+    expect(screen.getByRole("status")).toHaveTextContent("8 species");
   });
 
   it("narrows by filter chips, which toggle and combine", async () => {
@@ -20,15 +20,18 @@ describe("SpeciesBrowser", () => {
     render(<SpeciesBrowser species={species} />);
 
     await user.click(screen.getByRole("button", { name: "Jurassic" }));
-    expect(cards()).toHaveLength(3);
+    expect(cards()).toHaveLength(6);
     expect(screen.getByRole("button", { name: "Jurassic" })).toHaveAttribute("aria-pressed", "true");
 
     await user.click(screen.getByRole("button", { name: "Meat-eater" }));
-    expect(cards().map((a) => a.textContent)).toEqual([expect.stringContaining("Allosaurus fragilis")]);
-    expect(screen.getByRole("status")).toHaveTextContent("1 of 5 species");
+    expect(cards().map((a) => a.textContent)).toEqual([
+      expect.stringContaining("Dilophosaurus wetherilli"),
+      expect.stringContaining("Allosaurus fragilis"),
+    ]);
+    expect(screen.getByRole("status")).toHaveTextContent("2 of 8 species");
 
     await user.click(screen.getByRole("button", { name: "Jurassic" }));
-    expect(cards()).toHaveLength(2);
+    expect(cards()).toHaveLength(3);
   });
 
   it("searches names and shows a way out when nothing matches", async () => {
@@ -43,6 +46,6 @@ describe("SpeciesBrowser", () => {
     expect(screen.getByText(/No species match/)).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Clear filters" }));
-    expect(cards()).toHaveLength(5);
+    expect(cards()).toHaveLength(8);
   });
 });

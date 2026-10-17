@@ -49,7 +49,7 @@ test("anatomy mode shows hotspots whose notes cite the page's sources", async ({
 test("the home page filters species by period, diet and name", async ({ page }) => {
   await page.goto("/");
   const results = page.getByRole("region", { name: /Species/ }).getByRole("listitem");
-  await expect(results).toHaveCount(5);
+  await expect(results).toHaveCount(8);
 
   await page.getByRole("button", { name: "Cretaceous" }).click();
   await expect(results).toHaveCount(2);
@@ -68,7 +68,7 @@ test("without JavaScript every species is listed and filters are not shown", asy
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   await page.goto("/");
-  await expect(page.getByRole("region", { name: /Species/ }).getByRole("listitem")).toHaveCount(5);
+  await expect(page.getByRole("region", { name: /Species/ }).getByRole("listitem")).toHaveCount(8);
   await expect(page.getByRole("searchbox")).toHaveCount(0);
   await context.close();
 });
