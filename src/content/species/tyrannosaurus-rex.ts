@@ -318,6 +318,15 @@ export const tyrannosaurusRex: SpeciesInput = {
     ],
     citations: [
       {
+        id: "dal-trex-skull-cast",
+        type: "web",
+        authors: ["Digital Atlas of Ancient Life"],
+        title: "Vertebrate: Tyrannosaurus rex skull (MOTE)",
+        venue: "Sketchfab",
+        url: "https://sketchfab.com/3d-models/vertebrate-tyrannosaurus-rex-skull-mote-cf48487de55d454b8adc92dce2840a0d",
+        accessed: "2026-10-17",
+      },
+      {
         id: "nhm-tyrannosaurus",
         type: "web",
         authors: ["Natural History Museum, London"],
@@ -622,7 +631,7 @@ export const tyrannosaurusRex: SpeciesInput = {
       ],
       limits: { minDistance: 2, maxDistance: 45, maxPolarAngle: 1.5 },
     },
-    modes: ["studio", "anatomy"],
+    modes: ["studio", "anatomy", "fossil"],
     // Clip from scripts/blender/animate_idle.py (spec: scripts/blender/rigs/tyrannosaurus-rex-idle.json).
     animation: { clip: "Idle" },
     // Surface points from scripts/blender/surface_points.py (ray casts against the prepared GLB, 2026-10-16).
@@ -658,6 +667,36 @@ export const tyrannosaurusRex: SpeciesInput = {
         view: { position: [4.6, 3.8, 5.6], target: [0.4, 3.3, 3.2] },
       },
     ],
+    fossil: {
+      model: {
+        high: "/models/fossil-trex-skull/fossil-trex-skull-high.glb",
+        mobile: "/models/fossil-trex-skull/fossil-trex-skull-mobile.glb",
+      },
+      label: "Skull, Museum of the Earth",
+      isCast: true,
+      // Scaled to 1.5 m long, the length of the reconstruction's head; the skull rests on the ground.
+      camera: { default: { position: [2.2, 1.35, 2.4], target: [0, 0.5, 0] } },
+      note: {
+        text: "The fossil comparison shows a 3D scan of a cast of a _Tyrannosaurus rex_ skull on display at the Museum of the Earth in Ithaca, New York, not original bone. It is shown at the length of this model's head, not at the specimen's measured size.",
+        level: 1,
+        citationIds: ["dal-trex-skull-cast"],
+      },
+      attribution: {
+        creator: "Digital Atlas of Ancient Life (model by Emily Hauf)",
+        creatorUrl: "https://sketchfab.com/DigitalAtlasOfAncientLife",
+        title: "Vertebrate: Tyrannosaurus rex skull (MOTE)",
+        sourceUrl:
+          "https://sketchfab.com/3d-models/vertebrate-tyrannosaurus-rex-skull-mote-cf48487de55d454b8adc92dce2840a0d",
+        license: "CC0-1.0",
+        licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
+        modifications: [
+          "scaled to 1.5 m long",
+          "simplified from 618,000 to 191,000 triangles",
+          "textures resized and re-encoded",
+          "geometry compressed",
+        ],
+      },
+    },
     a11y: {
       modelDescription:
         "3D model of Tyrannosaurus rex standing on two legs, body and tail held level, mouth open.",

@@ -33,6 +33,7 @@ export function ViewerIsland({ config }: { config: ViewerConfig }) {
   const retry = useViewerStore((s) => s.retry);
   const setAnimate = useViewerStore((s) => s.setAnimate);
   const playing = useViewerStore((s) => s.playing);
+  const fossil = useViewerStore((s) => s.mode === "fossil") ? config.fossil : undefined;
   // Remember which poster failed rather than a boolean, so switching species tries the new one.
   const [failedPoster, setFailedPoster] = useState<string | null>(null);
   const posterFailed = failedPoster === config.model.poster;
@@ -106,7 +107,8 @@ export function ViewerIsland({ config }: { config: ViewerConfig }) {
           alt=""
           onError={() => setFailedPoster(config.model.poster)}
           className={`pointer-events-none absolute inset-0 size-full object-contain transition-opacity duration-500 ${
-            state === "ready" ? "opacity-0" : "opacity-100"
+            // The poster shows the reconstruction, so it must not stand in for the fossil while it loads.
+            state === "ready" || fossil ? "opacity-0" : "opacity-100"
           }`}
         />
       )}
@@ -118,6 +120,17 @@ export function ViewerIsland({ config }: { config: ViewerConfig }) {
       )}
 
       <StatusMessage state={state} progress={progress} onRetry={retry} />
+
+      {fossil && (
+        <p
+          role="status"
+          className="label pointer-events-none absolute top-4 left-4 inline-flex max-w-[calc(100%-2rem)] flex-wrap items-center gap-x-2 rounded-full border border-rule bg-surface/90 px-3 py-1.5 backdrop-blur"
+        >
+          <span>{fossil.label}</span>
+          <span aria-hidden="true">·</span>
+          <span className="text-ink">{fossil.isCast ? "Cast, not original bone" : "Original bone"}</span>
+        </p>
+      )}
 
       <div className="pointer-events-none absolute inset-x-0 bottom-4 flex flex-col items-center gap-2 px-4">
         {/* The motion is not evidence; say so while it plays. */}

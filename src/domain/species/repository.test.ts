@@ -34,9 +34,15 @@ describe("toViewerConfig", () => {
   });
 
   it("returns undefined for a species without a 3D model", () => {
-    const textOnly = getAllSpecies().find((s) => !s.presentation);
-    expect(textOnly).toBeDefined();
-    expect(toViewerConfig(textOnly!)).toBeUndefined();
+    const { presentation, ...textOnly } = getSpeciesBySlug("mamenchisaurus")!; // eslint-disable-line @typescript-eslint/no-unused-vars
+    expect(toViewerConfig(textOnly)).toBeUndefined();
+  });
+
+  it("passes the fossil scan's model, label and camera, but not its note or attribution", () => {
+    const config = toViewerConfig(getSpeciesBySlug("triceratops-horridus")!);
+    expect(config?.fossil).toMatchObject({ isCast: true, label: expect.any(String) });
+    expect(config?.fossil).not.toHaveProperty("note");
+    expect(config?.fossil).not.toHaveProperty("attribution");
   });
 });
 
@@ -60,6 +66,7 @@ describe("published content integrity", () => {
         ...c.habitat,
         ...c.discovery,
         ...(species.presentation?.appearanceNotes ?? []),
+        ...(species.presentation?.fossil ? [species.presentation.fossil.note] : []),
       ]) {
         if (claim.level < 4) expect(claim.citationIds.length, claim.text).toBeGreaterThan(0);
         claim.citationIds.forEach((id) => used.add(id));

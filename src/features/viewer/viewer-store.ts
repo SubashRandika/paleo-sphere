@@ -34,8 +34,8 @@ type CameraView = CameraConfig["default"];
 type Hotspot = ViewerConfig["hotspots"][number];
 
 export type ViewerStatus = "loading" | "ready" | "error";
-/** The presentation modes the viewer implements so far (habitat: Phase 7; fossil: with its scan). */
-export type ViewerMode = "studio" | "anatomy";
+/** The presentation modes the viewer implements so far (habitat: Phase 7). */
+export type ViewerMode = "studio" | "anatomy" | "fossil";
 
 type ViewerState = {
   status: ViewerStatus;
@@ -48,6 +48,8 @@ type ViewerState = {
   controller: CameraController | null;
   camera: CameraConfig | null;
   hotspots: readonly Hotspot[];
+  /** Default view of the fossil scan, when the species has one. */
+  fossilView: CameraView | null;
   mode: ViewerMode;
   /** Selected anatomy hotspot id; only meaningful in anatomy mode. */
   hotspot: string | null;
@@ -58,7 +60,12 @@ type ViewerState = {
   setProgress(progress: number): void;
   setRetry(retry: (() => void) | null): void;
   setAnimate(animate: boolean): void;
-  attach(controller: CameraController, camera: CameraConfig, hotspots?: readonly Hotspot[]): void;
+  attach(
+    controller: CameraController,
+    camera: CameraConfig,
+    hotspots?: readonly Hotspot[],
+    fossilView?: CameraView | null,
+  ): void;
   detach(): void;
   setMode(mode: ViewerMode): void;
   /** Selects a hotspot and frames it; `null` deselects and returns to the default view. */
@@ -91,6 +98,7 @@ export const useViewerStore = create<ViewerState>()((set, get) => {
     controller: null,
     camera: null,
     hotspots: [],
+    fossilView: null,
     mode: "studio",
     hotspot: null,
     playing: false,
@@ -100,17 +108,27 @@ export const useViewerStore = create<ViewerState>()((set, get) => {
     setRetry: (retry) => set({ retry }),
     setAnimate: (animate) => set({ animate }),
     // A new species starts in studio mode, still, with nothing selected.
-    attach: (controller, camera, hotspots = []) =>
-      set({ controller, camera, hotspots, mode: "studio", hotspot: null, playing: false }),
+    attach: (controller, camera, hotspots = [], fossilView = null) =>
+      set({ controller, camera, hotspots, fossilView, mode: "studio", hotspot: null, playing: false }),
     detach: () =>
-      set({ controller: null, camera: null, hotspots: [], mode: "studio", hotspot: null, playing: false }),
+      set({
+        controller: null,
+        camera: null,
+        hotspots: [],
+        fossilView: null,
+        mode: "studio",
+        hotspot: null,
+        playing: false,
+      }),
 
     setMode: (mode) => {
-      if (mode === get().mode) return;
+      const previous = get().mode;
+      if (mode === previous || (mode === "fossil" && !get().fossilView)) return;
       const wasSelected = get().hotspot !== null;
       // Other modes show the rest pose (the model returns to it when the clip stops).
       set({ mode, hotspot: null, playing: mode === "studio" && get().playing });
-      if (wasSelected) get().reset();
+      // The scan and the reconstruction are different objects, each framed by its own default view.
+      if (wasSelected || mode === "fossil" || previous === "fossil") get().reset();
     },
     selectHotspot: (id) => {
       const target = id === null ? undefined : get().hotspots.find((h) => h.id === id);
@@ -132,9 +150,10 @@ export const useViewerStore = create<ViewerState>()((set, get) => {
       void controller?.rotate(azimuthDeg * DEG, polarDeg * DEG, animate);
     },
     reset: () => {
-      const camera = get().camera;
+      const { camera, fossilView, mode } = get();
       set({ hotspot: null });
-      if (camera) lookAt(camera.default);
+      const view = mode === "fossil" ? fossilView : camera?.default;
+      if (view) lookAt(view);
     },
     goTo: (presetId) => {
       const preset = get().camera?.presets.find((p) => p.id === presetId);

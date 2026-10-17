@@ -101,4 +101,12 @@ describe("ViewerControls", () => {
       expect(screen.getByRole("button", { name: "Play animation" })).toBeDisabled();
     });
   });
+
+  it("turns off the reconstruction's camera presets while the fossil scan is shown", () => {
+    useViewerStore.setState({ status: "ready", mode: "fossil" });
+    render(<ViewerControls presets={presets} modes={["studio", "fossil"]} fullscreen={noFullscreen} />);
+    expect(screen.getByRole("button", { name: "Fossil" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Side view" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Reset view" })).toBeEnabled();
+  });
 });

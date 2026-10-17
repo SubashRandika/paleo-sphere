@@ -365,3 +365,14 @@ Approve or amend:
 | Frustum culling | Off for skinned meshes | The bounding sphere is computed once, in one pose; a moving mesh can leave it |
 | Marker occlusion | `occlusion-proxy.ts`: markers raycast against a rest-pose copy of the skinned positions, computed once at load | three.js skins every tested vertex on the CPU for a SkinnedMesh raycast: anatomy camera moves fell to ~350 ms per frame. The copy is exact (built with three's own `getVertexPosition`) and brings it back to the static model's cost |
 | Error status | `SpeciesModel` cleanup no longer overwrites "error" with "loading" | A render error after load left "Loading model · 100%" on screen instead of the retry message (found while testing playback) |
+
+## 18. Fossil comparison mode (2026-10-17)
+
+| Area | Decision | Why |
+|---|---|---|
+| Presentation | The scan replaces the reconstruction in the same stage (Fossil button), rather than standing beside it | One model in GPU memory at a time; the per-URL error boundary already handles the swap. Two specimens side by side would also imply a size relationship we cannot source |
+| Data | `presentation.fossil`: `model` (high/mobile), short `label`, `isCast`, `camera.default`, a cited `note`, `attribution`. The viewer gets only model, label, cast flag and camera | Same split as the reconstruction: prose and citations stay in the article ("Fossil comparison" under About this model) |
+| Labelling | While shown, the stage reads "<label> · Cast, not original bone" (or "Original bone") | CLAUDE.md §7D: never imply a cast or illustration is an actual specimen |
+| Camera | The scan has its own default view; Reset frames it; the reconstruction's presets are off in fossil mode; leaving fossil mode returns to the default view | Presets were authored for the reconstruction's shape |
+| Poster | Hidden in fossil mode | It shows the reconstruction, so it must not stand in for the scan while it loads |
+| Scale | Display only; no size statement | Scan units undocumented; see `lookdev/species-models.md` |

@@ -6,8 +6,8 @@
 - **Phase:** 4 — Realism and asset pipeline (implemented 2026-10-16)
 - **Phase:** 5 — Scientific species content (approved 2026-10-16; records published)
 - **Phase:** 6 — Complete species explorer (in progress)
-- **Task:** *T. rex* idle animation done (2026-10-17); 6.5 remaining models + fossil scans, **waiting for your Sketchfab downloads** into `assets-src/<name>/`; Task 3.6 still open
-- **Next recommended action:** Download the six models listed under Phase 6 → 6.5; Claude then prepares, builds and reviews each one.
+- **Task:** 6.5 done (2026-10-17): all five species have models, and *Triceratops* and *T. rex* have fossil comparison mode. Task 3.6 (real-device check) still open
+- **Next recommended action:** Review the new models in the browser (`docs/lookdev/species-models.md`), then approve Phase 6 or list changes.
 
 ## Phase checklist
 
@@ -51,7 +51,7 @@
   - [x] 6.2 Species browser on the home page (search; period, diet and group filters; oldest first) and the strata rail / phone strip on species pages
   - [x] 6.3 Structured info panel with a length comparison and jump links
   - [x] 6.4 Anatomy mode: 5 *T. rex* hotspots (Blender ray-cast positions, cited notes), mode switch, DOM markers, note card
-  - [ ] 6.5 Models for *Triceratops*, *Stegosaurus*, *Mamenchisaurus*, *Allosaurus* + fossil scans (*Triceratops* skeleton, *T. rex* skull cast), **blocked on downloads** (Sketchfab requires a logged-in account): Triceratops (D.art), Stegosaurus (PusztaiAndras), Mamen River Dragon (D.art), Animated Allosaurus (AneesAnimates), Triceratops horridus Marsh (Smithsonian, CC0), T. rex skull MOTE (CC0), glTF format, one folder each under `assets-src/`
+  - [x] 6.5 Models for *Triceratops*, *Stegosaurus*, *Mamenchisaurus*, *Allosaurus*; fossil comparison mode with the Smithsonian *Triceratops* mount (cast) and a *T. rex* skull cast (`lookdev/species-models.md`, `architecture.md` §18). Tests: 121 unit/component, 54 e2e, 56/56 citations
   - [x] 6.6 `docs/adding-a-species.md`; tests: 107 unit/component, 42 e2e (desktop + Pixel 7)
   - [x] Rig test for the *T. rex* idle animation (your request): **passed** for moderate motion, see `lookdev/tyrannosaurus-rex-rig.md`
   - [x] *T. rex* idle animation: 12 s looping clip, Play/Pause in the toolbar, caption + level-4 note, CC BY modification recorded (`architecture.md` §17). A synthesised breathing sound was tried and removed at your review (not realistic enough)
@@ -91,6 +91,9 @@
 | 2026-10-16 | Phase 6 decisions. | See `architecture.md` §16. |
 | 2026-10-17 | Idle animation has no sound. | Your review: the synthesised breathing did not sound realistic. A call would contradict the fixed open mouth and the idle never steps, so no sound beats an unconvincing one |
 | 2026-10-16 | Idle animation decisions. | See `architecture.md` §17. |
+| 2026-10-17 | Fossil scans are scaled only for display and say nothing about size; the skeleton is shown lying on its side, as mounted. | The scan units are undocumented and the skull's original specimen is not named, so any size statement would be invented. |
+| 2026-10-17 | Curved models are scaled along the midline (snout to tail tip), not the bounding box. | Published lengths follow the backbone; the *Mamenchisaurus* box was 1.24× shorter than its body. |
+| 2026-10-17 | All materials are forced non-metallic in the web build. | Skin, horn and bone are dielectrics; two downloads had metallic = 1 with stray metal pixels. |
 | 2026-10-16 | Light theme: dark stays the default; the visitor's choice is stored. | CLAUDE.md §10 "dark-first … optional light theme". Following the OS setting instead is a one-line change in `THEME_INIT_SCRIPT`. |
 
 ## Assumptions
@@ -109,12 +112,21 @@
 | Species | Asset | Creator | License | Verified |
 |---|---|---|---|---|
 | *T. rex* | Tyrant King – Tyrannosaurus | Marcel Schanz | CC BY 4.0 | `license.txt` in download, 2026-10-15 |
+| *Triceratops* | Triceratops | DailyArt | CC BY-NC 4.0 | `license.txt`, 2026-10-17 |
+| *Stegosaurus* | Stegosaurus | PAndras | CC BY 4.0 | `license.txt`, 2026-10-17 |
+| *Allosaurus* | Animated Allosaurus (Free) | Anees Animates | CC BY-NC 4.0 | `license.txt`, 2026-10-17 |
+| *Mamenchisaurus* | Mamen River Dragon | DailyArt | CC BY-NC 4.0 | `license.txt`, 2026-10-17 |
+| *Triceratops* (fossil) | Triceratops Horridus Marsh (USNM PAL 500000, cast) | Smithsonian Institution | CC0 1.0 | `license.txt`, 2026-10-17 |
+| *T. rex* (fossil) | Vertebrate: Tyrannosaurus rex skull (MOTE), cast | Digital Atlas of Ancient Life (Emily Hauf) | CC0 1.0 | `license.txt`, 2026-10-17 |
 
 ## Known limitations
 
 - *T. rex* rig suits only small, slow motion: no walk cycle, and the mouth cannot close (sculpted open). Source model is not life-size (scaled in preparation).
 - Anatomy-mode camera moves run at ~30 fps (median 33 ms) on an integrated Radeon 860M, with the static model as well as the rigged one: each of the 5 markers raycasts the whole model on every frame. Fix proposed for Phase 8: test occlusion only when the camera settles, or against a low-poly stand-in.
-- Free-only assets: game-ready sculpts (~10k–100k faces), not film-grade.
+- Free-only assets: game-ready sculpts (~10k–100k faces), not film-grade. The *Triceratops* is the weakest (11k triangles, soft silhouette up close); the *Stegosaurus* texture is very dark.
+- Three CC BY-NC models (*Triceratops*, *Allosaurus*, *Mamenchisaurus*) must be replaced if the project ever becomes commercial.
+- Fossil scans carry no size statement (undocumented scan units; the skull's original specimen is not named). The *T. rex* skull is 191k triangles even on mobile; reduce further if phones struggle (Task 3.6).
+- New species have no anatomy hotspots yet (each needs cited notes).
 - WebKit (Safari) not yet in the Playwright matrix; add before Phase 8.
 - Real-GPU frame-rate data from one laptop only (AMD Radeon 860M, Chrome); no phone measurements yet (Task 3.6).
 - Web fonts total 331 KB; optimise in Phase 8 (`perf.md`).

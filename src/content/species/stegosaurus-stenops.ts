@@ -333,5 +333,59 @@ export const stegosaurusStenops: SpeciesInput = {
       },
     ],
   },
+  presentation: {
+    model: {
+      high: "/models/stegosaurus-stenops/stegosaurus-stenops-high.glb",
+      mobile: "/models/stegosaurus-stenops/stegosaurus-stenops-mobile.glb",
+      poster: "/models/stegosaurus-stenops/stegosaurus-stenops-poster.webp",
+    },
+    attribution: {
+      creator: "PAndras",
+      creatorUrl: "https://sketchfab.com/PusztaiAndras",
+      title: "Stegosaurus",
+      sourceUrl: "https://sketchfab.com/3d-models/stegosaurus-b2545ed6031e49939b823b1c8435989e",
+      license: "CC-BY-4.0",
+      licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+      modifications: [
+        "scaled to a length of 9 m",
+        "materials set to non-metallic (skin and horn are not metal)",
+        "textures resized and re-encoded",
+        "geometry compressed",
+      ],
+    },
+    appearanceNotes: [
+      {
+        text: "Paired spikes at the end of the tail, as in the fossils.",
+        level: 1,
+        citationIds: ["hayashi-2011"],
+      },
+      {
+        text: "A small head for the size of the body, as in the fossils.",
+        level: 1,
+        citationIds: ["nhm-stegosaurus"],
+      },
+      {
+        text: "The red plates and dark body are the model artist's interpretation, not based on fossil evidence.",
+        level: 4,
+        citationIds: [],
+      },
+    ],
+    // Model is 9 m long (z −4.5 → +4.5, head toward +z), 3.9 m tall to the top of the plates.
+    camera: {
+      default: { position: [9.4, 3.6, 8.4], target: [0, 1.7, 0.3] },
+      presets: [
+        { id: "side", label: "Side", position: [13.5, 2, 0], target: [0, 1.8, 0] },
+        { id: "front", label: "Front", position: [1.8, 2.2, 11.5], target: [0, 1.3, 1.5] },
+        { id: "tail", label: "Tail", position: [5.5, 3, -10.5], target: [0, 1.5, -2.8] },
+      ],
+      limits: { minDistance: 2, maxDistance: 36, maxPolarAngle: 1.5 },
+    },
+    modes: ["studio"],
+    hotspots: [],
+    a11y: {
+      modelDescription:
+        "3D model of Stegosaurus stenops standing on four legs, head low, with two rows of tall plates along its back and spikes at the end of its tail.",
+    },
+  },
   review: { status: "published", reviewedOn: "2026-10-16" },
 };

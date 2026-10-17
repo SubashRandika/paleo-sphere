@@ -271,5 +271,56 @@ export const mamenchisaurus: SpeciesInput = {
       },
     ],
   },
+  presentation: {
+    model: {
+      high: "/models/mamenchisaurus/mamenchisaurus-high.glb",
+      mobile: "/models/mamenchisaurus/mamenchisaurus-mobile.glb",
+      poster: "/models/mamenchisaurus/mamenchisaurus-poster.webp",
+    },
+    attribution: {
+      creator: "DailyArt",
+      creatorUrl: "https://sketchfab.com/D.art",
+      title: "Mamen River Dragon",
+      sourceUrl: "https://sketchfab.com/3d-models/mamen-river-dragon-6e6611b4a204479aac83dfd96183e779",
+      license: "CC-BY-NC-4.0",
+      licenseUrl: "https://creativecommons.org/licenses/by-nc/4.0/",
+      modifications: [
+        "posed from a frame of its animation with the neck held about level; rig and animation removed",
+        "scaled so its length along the neck, back and tail is 22 m",
+        "materials set to non-metallic (skin and horn are not metal)",
+        "textures resized and re-encoded",
+        "geometry compressed",
+      ],
+    },
+    appearanceNotes: [
+      {
+        text: "The neck is shown held about level. How the neck was usually held is hard to test, because the fossils are incomplete and distorted.",
+        level: 3,
+        citationIds: ["taylor-2022"],
+      },
+      {
+        text: "Skin texture and colour are the model artist's interpretation, not based on fossil evidence.",
+        level: 4,
+        citationIds: [],
+      },
+    ],
+    // 22 m along the body (scripts/blender/midline_length.py); the curved pose spans 17.7 m (z), 4.0 m tall.
+    // Snout at (−1.1, 3.2, 8.9).
+    camera: {
+      default: { position: [17, 6.5, 16], target: [0, 2.6, 0.5] },
+      presets: [
+        { id: "side", label: "Side", position: [27, 3.2, 0], target: [0, 2.6, 0] },
+        { id: "front", label: "Front", position: [3, 4.5, 23], target: [-0.5, 3, 4] },
+        { id: "head", label: "Head", position: [5, 4.2, 12.6], target: [-0.9, 3.1, 7.3] },
+      ],
+      limits: { minDistance: 3, maxDistance: 60, maxPolarAngle: 1.5 },
+    },
+    modes: ["studio"],
+    hotspots: [],
+    a11y: {
+      modelDescription:
+        "3D model of Mamenchisaurus standing on four legs, with a very long neck held about level and a long tail curving to one side.",
+    },
+  },
   review: { status: "published", reviewedOn: "2026-10-16" },
 };

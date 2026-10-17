@@ -17,7 +17,7 @@ type Props = {
  * Camera toolbar. Lives in the DOM (not the canvas) so it is keyboard- and screen-reader-accessible.
  * Buttons call store actions; the store moves the camera without re-rendering the scene.
  */
-const MODE_LABELS: Record<ViewerMode, string> = { studio: "Studio", anatomy: "Anatomy" };
+const MODE_LABELS: Record<ViewerMode, string> = { studio: "Studio", anatomy: "Anatomy", fossil: "Fossil" };
 
 export function ViewerControls({ presets, modes = ["studio"], fullscreen, animation }: Props) {
   const ready = useViewerStore((s) => s.status === "ready");
@@ -67,7 +67,8 @@ export function ViewerControls({ presets, modes = ["studio"], fullscreen, animat
       {presets.map((preset) => (
         <TextButton
           key={preset.id}
-          disabled={!ready}
+          // Presets frame the reconstruction; the fossil scan is a different object.
+          disabled={!ready || mode === "fossil"}
           onClick={() => goTo(preset.id)}
           label={`${preset.label} view`}
         >

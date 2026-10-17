@@ -37,10 +37,11 @@ type Props = {
  *  - Transparent canvas: the CSS stage gradient behind it is the studio backdrop.
  */
 export default function Scene({ config, settings = STUDIO_SETTINGS, modelUrl }: Props) {
-  const url = useMemo(
-    () => modelUrl ?? config.model[chooseAssetTier(readDeviceSignals())],
-    [config.model, modelUrl],
-  );
+  // Fossil mode swaps the reconstruction for the specimen scan; the per-URL boundary below unmounts
+  // one and loads the other, so only one of them is ever in GPU memory.
+  const fossil = useViewerStore((s) => s.mode === "fossil") && config.fossil !== undefined;
+  const showing = fossil ? config.fossil!.model : config.model;
+  const url = useMemo(() => modelUrl ?? showing[chooseAssetTier(readDeviceSignals())], [showing, modelUrl]);
   // R3F applies plain-object gl props to the renderer, and skips its ACES default when
   // toneMapping is given. Memoised so the renderer is only reconfigured when settings change.
   const gl = useMemo(
@@ -100,7 +101,7 @@ export default function Scene({ config, settings = STUDIO_SETTINGS, modelUrl }: 
               occluder={occluder}
               url={url}
               disabledMaps={settings.disabledMaps}
-              animation={config.animation}
+              animation={fossil ? undefined : config.animation}
             />
             <Hotspots hotspots={config.hotspots} occluder={occluder} />
             {/*
@@ -114,7 +115,11 @@ export default function Scene({ config, settings = STUDIO_SETTINGS, modelUrl }: 
             <GroundShadow />
           </Suspense>
         </ViewerErrorBoundary>
-        <CameraRig camera={config.camera} hotspots={config.hotspots} />
+        <CameraRig
+          camera={config.camera}
+          hotspots={config.hotspots}
+          fossilView={config.fossil?.camera.default}
+        />
       </Canvas>
     </>
   );

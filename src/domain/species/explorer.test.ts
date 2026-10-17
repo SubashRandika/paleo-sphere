@@ -32,7 +32,8 @@ describe("toSummaries", () => {
     expect(trex.length).toEqual({ min: 12, max: 13 });
     expect(trex.hasModel).toBe(true);
     expect(trex.poster).toMatch(/poster\.webp$/);
-    expect(all.find((s) => s.slug === "mamenchisaurus")!.hasModel).toBe(false);
+    const { presentation, ...textOnly } = getAllSpecies().find((s) => s.slug === "mamenchisaurus")!; // eslint-disable-line @typescript-eslint/no-unused-vars
+    expect(toSummaries([textOnly])[0]!.hasModel).toBe(false);
   });
 });
 

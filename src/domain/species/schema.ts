@@ -199,12 +199,20 @@ export const presentationSchema = z.strictObject({
     })
     .optional(),
   habitatId: id.optional(),
+  /**
+   * A scan of a real specimen for fossil comparison mode, swapped in place of the reconstruction.
+   * Never an illustrative skeleton presented as a specimen (CLAUDE.md §7D).
+   */
   fossil: z
     .strictObject({
-      src: assetPath,
-      label: z.string().min(1),
+      model: z.strictObject({ high: assetPath, mobile: assetPath }),
+      /** Shown on the stage while the scan is displayed, e.g. "Mounted skeleton (cast)". */
+      label: z.string().min(1).max(48),
       /** True when the scan is of a cast, not original bone — must be shown to visitors. */
       isCast: z.boolean(),
+      camera: z.strictObject({ default: cameraViewSchema }),
+      /** What the specimen is and where it is, with its source; shown with the model notes. */
+      note: claimSchema,
       attribution: attributionSchema,
     })
     .optional(),
@@ -338,6 +346,7 @@ function findDuplicates(values: string[]): string[] {
 function collectClaims(s: Pick<Species, "content" | "presentation">): [Path, Claim][] {
   const out: [Path, Claim][] = [];
   s.presentation?.appearanceNotes.forEach((c, i) => out.push([["presentation", "appearanceNotes", i], c]));
+  if (s.presentation?.fossil) out.push([["presentation", "fossil", "note"], s.presentation.fossil.note]);
   const c = s.content;
   if (!c) return out;
   out.push([["content", "dietEvidence"], c.dietEvidence]);

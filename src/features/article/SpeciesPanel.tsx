@@ -65,6 +65,7 @@ export function SpeciesPanel({ species, content, index }: Props) {
         <ModelAttribution
           attribution={species.presentation.attribution}
           appearanceNotes={species.presentation.appearanceNotes}
+          fossil={species.presentation.fossil}
           index={content ? index : undefined}
         />
       )}

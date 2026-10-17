@@ -9,6 +9,10 @@
  * Steps (see docs/architecture.md §4):
  *  - Drop KHR_materials_specular / KHR_materials_ior. They add a full-size texture and force
  *    MeshPhysicalMaterial; skin is a dielectric, so three's default F0 (0.04) is a sound baseline.
+ *  - Every material made non-metallic (metallicFactor 0). Skin, horn, keratin and bone are all
+ *    dielectrics; some downloads set metallic = 1 and rely on the texture, with stray metal pixels.
+ *  - --simplify <ratio>: reduce triangles (meshoptimizer), for dense scans such as photogrammetry.
+ *    The error limit keeps the silhouette; the ratio is a target, not a guarantee.
  *  - resample: drop animation keys that linear interpolation reproduces anyway (constant
  *    channels on bones an idle clip leaves still, straight runs). No-op for static models.
  *  - dedup / prune / weld: remove duplicate and unused data, merge identical vertices.
@@ -27,8 +31,8 @@ import { parseArgs } from "node:util";
 import { Mode, toktx } from "@gltf-transform/cli";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
-import { dedup, meshopt, prune, resample, textureCompress, weld } from "@gltf-transform/functions";
-import { MeshoptDecoder, MeshoptEncoder } from "meshoptimizer";
+import { dedup, meshopt, prune, resample, simplify, textureCompress, weld } from "@gltf-transform/functions";
+import { MeshoptDecoder, MeshoptEncoder, MeshoptSimplifier } from "meshoptimizer";
 import sharp from "sharp";
 
 const VARIANTS = {
@@ -51,6 +55,7 @@ const { values: args } = parseArgs({
     // Normal-map codec for ktx2 builds (webp | uastc | etc1s) and an optional filename tag for lookdev.
     normal: { type: "string", default: "webp" },
     tag: { type: "string", default: "" },
+    simplify: { type: "string" },
   },
 });
 const variants = args.variants.split(",").map((v) => v.trim());
@@ -76,6 +81,7 @@ if (args.textures === "ktx2" && process.platform === "win32") {
 
 await MeshoptEncoder.ready;
 await MeshoptDecoder.ready;
+await MeshoptSimplifier.ready;
 const io = new NodeIO()
   .registerExtensions(ALL_EXTENSIONS)
   .registerDependencies({ "meshopt.encoder": MeshoptEncoder, "meshopt.decoder": MeshoptDecoder });
@@ -137,11 +143,16 @@ for (const name of variants) {
   }
 
   const max = VARIANTS[name];
+  for (const material of doc.getRoot().listMaterials()) material.setMetallicFactor(0);
+
   await doc.transform(
     resample(),
     dedup(),
     prune(),
     weld(),
+    ...(args.simplify
+      ? [simplify({ simplifier: MeshoptSimplifier, ratio: Number(args.simplify), error: 0.001 })]
+      : []),
     ...textureSteps(args.textures, [max, max], args.normal),
     meshopt({ encoder: MeshoptEncoder, level: "medium" }),
   );
@@ -155,6 +166,11 @@ for (const name of variants) {
     file,
     downloadMB: +((await stat(file)).size / 1e6).toFixed(2),
     estGpuTextureMB: estimateGpuMB(doc),
+    triangles: doc
+      .getRoot()
+      .listMeshes()
+      .flatMap((m) => m.listPrimitives())
+      .reduce((n, p) => n + (p.getIndices()?.getCount() ?? 0) / 3, 0),
     animations: doc
       .getRoot()
       .listAnimations()

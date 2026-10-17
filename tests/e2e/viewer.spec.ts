@@ -82,6 +82,9 @@ test("without WebGL 2 the page explains why and keeps the poster and text", asyn
 test("the idle animation plays on request, says it is interpretation, and stops for anatomy", async ({
   page,
 }) => {
+  // While the clip plays, every frame re-renders the shadow maps. On SwiftShader (CPU WebGL) with
+  // several test workers sharing the CPU, that can outlast the default timeout; real GPUs hold 60 fps.
+  test.slow();
   const problems: string[] = [];
   page.on("pageerror", (error) => problems.push(String(error)));
   page.on("console", (message) => {
@@ -105,4 +108,21 @@ test("the idle animation plays on request, says it is interpretation, and stops 
   await expect(stage(page).getByText(/artistic interpretation/)).toHaveCount(0);
   await expect(stage(page)).toHaveAttribute("data-viewer-state", "ready");
   expect(problems).toEqual([]);
+});
+
+test("fossil comparison swaps in the specimen scan, labelled as a cast, and back", async ({ page }) => {
+  await page.goto("/species/triceratops-horridus");
+  await expect(stage(page)).toHaveAttribute("data-viewer-state", "ready", { timeout: 60_000 });
+
+  await page.getByRole("button", { name: "Fossil" }).click();
+  await expect(page.getByRole("button", { name: "Fossil" })).toHaveAttribute("aria-pressed", "true");
+  await expect(stage(page).getByText("Cast, not original bone")).toBeVisible();
+  await expect(stage(page)).toHaveAttribute("data-viewer-state", "ready", { timeout: 60_000 });
+  // Camera presets frame the reconstruction, so they are off while the scan is shown.
+  await expect(page.getByRole("button", { name: "Side view" })).toBeDisabled();
+
+  await page.getByRole("button", { name: "Studio" }).click();
+  await expect(stage(page).getByText("Cast, not original bone")).toHaveCount(0);
+  await expect(stage(page)).toHaveAttribute("data-viewer-state", "ready", { timeout: 60_000 });
+  await expect(page.getByRole("button", { name: "Side view" })).toBeEnabled();
 });

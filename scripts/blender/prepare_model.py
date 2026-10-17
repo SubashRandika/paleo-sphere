@@ -8,6 +8,11 @@ Prepare a downloaded dinosaur model for the web pipeline (run headless in Blende
 
 What it does, in order:
   1. Imports the source glTF into an empty scene (no default cube/camera/light).
+     Rigged models: the pose is frozen into the meshes (--pose), then the rig is dropped. A bind pose
+     is often a T-pose; the pose shown on Sketchfab usually comes from an animation frame. The
+     importer's bone display shapes (an "Icosphere") are removed, they are not part of the model.
+     --rotate turns the whole model (world axes, Blender Z up) when the source is lying on its side
+     or faces along the wrong axis.
   2. Un-parents every mesh while keeping its world transform, then deletes helper empties.
      Sketchfab exports nest meshes under several empties (FBX cm→m scale, Z-up→Y-up rotations).
   3. Applies all transforms, so vertex positions are final and every object has an identity matrix.
@@ -23,8 +28,10 @@ import argparse
 import json
 import sys
 
+import math
+
 import bpy
-from mathutils import Vector
+from mathutils import Matrix, Vector
 
 
 def parse_args():
@@ -34,6 +41,16 @@ def parse_args():
     p.add_argument("--output", required=True)
     p.add_argument("--length", type=float, required=True, help="Target body length in metres (head to tail)")
     p.add_argument("--blend", help="Optional path to save the prepared .blend for inspection")
+    p.add_argument(
+        "--pose",
+        default="current",
+        help="Rigged models: rest (bind pose), frame:N (an animation frame), or current (as imported)",
+    )
+    p.add_argument(
+        "--rotate",
+        default="",
+        help="Comma-separated axis:degrees in Blender world axes, applied in order, e.g. y:-90,z:180",
+    )
     return p.parse_args(argv)
 
 
@@ -55,8 +72,26 @@ def main():
     args = parse_args()
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=args.input)
+    scene = bpy.context.scene
 
-    meshes = [o for o in bpy.context.scene.objects if o.type == "MESH"]
+    # 1b. Rigged models: drop bone display shapes, freeze the chosen pose, then the rig can go.
+    armatures = [o for o in scene.objects if o.type == "ARMATURE"]
+    shapes = {pb.custom_shape for a in armatures for pb in a.pose.bones if pb.custom_shape}
+    for o in shapes:
+        bpy.data.objects.remove(o, do_unlink=True)
+    if armatures:
+        if args.pose == "rest":
+            for a in armatures:
+                a.data.pose_position = "REST"
+        elif args.pose.startswith("frame:"):
+            scene.frame_set(int(args.pose.split(":")[1]))
+        bpy.context.view_layer.update()
+        for o in [o for o in scene.objects if o.type == "MESH"]:
+            for md in [m for m in o.modifiers if m.type == "ARMATURE"]:
+                select_only([o])
+                bpy.ops.object.modifier_apply(modifier=md.name)
+
+    meshes = [o for o in scene.objects if o.type == "MESH"]
     if not meshes:
         raise SystemExit("No meshes found in input")
 
@@ -68,7 +103,12 @@ def main():
     for o in [o for o in bpy.context.scene.objects if o.type != "MESH"]:
         bpy.data.objects.remove(o, do_unlink=True)
 
-    # 3. Bake transforms into the vertices.
+    # 3. Bake transforms into the vertices (after any requested rotation about the world origin).
+    for spec in [r for r in args.rotate.split(",") if r]:
+        axis, degrees = spec.split(":")
+        turn = Matrix.Rotation(math.radians(float(degrees)), 4, axis.upper())
+        for o in meshes:
+            o.matrix_world = turn @ o.matrix_world
     select_only(meshes)
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 
@@ -108,6 +148,8 @@ def main():
     )
 
     report = {
+        "pose": args.pose if armatures else None,
+        "rotate": args.rotate or None,
         "meshes": [{"name": o.name, "triangles": sum(len(p.vertices) - 2 for p in o.data.polygons)} for o in meshes],
         "materials": sorted({s.material.name for o in meshes for s in o.material_slots if s.material}),
         "sourceSizeMetres": [round(v, 3) for v in source_size],

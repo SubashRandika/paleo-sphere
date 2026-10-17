@@ -204,6 +204,15 @@ export const triceratopsHorridus: SpeciesInput = {
     hotspotNotes: [],
     citations: [
       {
+        id: "gbif-usnm-pal-500000",
+        type: "database",
+        authors: ["Smithsonian National Museum of Natural History, Department of Paleobiology"],
+        title: "USNM PAL 500000, Triceratops: mounted skeleton (casts and 3D prints) — specimen record",
+        venue: "NMNH Paleobiology Specimen Records (USNM), via GBIF",
+        url: "https://api.gbif.org/v1/occurrence/2284132289",
+        accessed: "2026-10-17",
+      },
+      {
         id: "nhm-triceratops",
         type: "web",
         authors: ["Natural History Museum, London"],
@@ -330,6 +339,82 @@ export const triceratopsHorridus: SpeciesInput = {
         accessed,
       },
     ],
+  },
+  presentation: {
+    model: {
+      high: "/models/triceratops-horridus/triceratops-horridus-high.glb",
+      mobile: "/models/triceratops-horridus/triceratops-horridus-mobile.glb",
+      poster: "/models/triceratops-horridus/triceratops-horridus-poster.webp",
+    },
+    attribution: {
+      creator: "DailyArt",
+      creatorUrl: "https://sketchfab.com/D.art",
+      title: "Triceratops",
+      sourceUrl: "https://sketchfab.com/3d-models/triceratops-909bf645de1746829ab19acd1ae31767",
+      license: "CC-BY-NC-4.0",
+      licenseUrl: "https://creativecommons.org/licenses/by-nc/4.0/",
+      // What scripts/blender/prepare_model.py and scripts/build-asset.mjs change.
+      modifications: [
+        "rig and animation removed, standing pose kept",
+        "scaled to a length of 9 m",
+        "materials set to non-metallic (skin and horn are not metal)",
+        "textures resized and re-encoded",
+        "geometry compressed",
+      ],
+    },
+    appearanceNotes: [
+      {
+        text: "Two long horns above the eyes and a short horn on the nose, as in fossil skulls.",
+        level: 1,
+        citationIds: ["farke-2009"],
+      },
+      {
+        text: "Colour and spot pattern are the model artist's interpretation, not based on fossil evidence.",
+        level: 4,
+        citationIds: [],
+      },
+    ],
+    // Model is 9 m long (z −4.5 → +4.5, head toward +z), 4.0 m tall to the top of the frill.
+    camera: {
+      default: { position: [9.4, 3.4, 8.4], target: [0, 1.8, 0.4] },
+      presets: [
+        { id: "side", label: "Side", position: [13.5, 2, 0], target: [0, 1.9, 0] },
+        { id: "front", label: "Front", position: [1.8, 2.6, 11.5], target: [0, 1.8, 1.5] },
+        { id: "head", label: "Head", position: [5.2, 2.8, 9.2], target: [0, 1.9, 3.3] },
+      ],
+      limits: { minDistance: 2, maxDistance: 36, maxPolarAngle: 1.5 },
+    },
+    modes: ["studio", "fossil"],
+    hotspots: [],
+    fossil: {
+      model: {
+        high: "/models/fossil-triceratops/fossil-triceratops-high.glb",
+        mobile: "/models/fossil-triceratops/fossil-triceratops-mobile.glb",
+      },
+      label: "Mounted skeleton USNM PAL 500000",
+      isCast: true,
+      // Scan as published (units not documented), lying on its side as mounted.
+      camera: { default: { position: [4.3, 3, 4.4], target: [0, 0.6, 0] } },
+      note: {
+        text: "The fossil comparison shows a 3D scan of the Smithsonian's mounted _Triceratops_ (USNM PAL 500000). The mount is made of casts and 3D prints of bones from several individuals, not original bone. The scan shows it lying on its side, as it is mounted.",
+        level: 1,
+        citationIds: ["gbif-usnm-pal-500000"],
+      },
+      attribution: {
+        creator: "Smithsonian Institution",
+        creatorUrl: "https://sketchfab.com/Smithsonian",
+        title: "Triceratops Horridus Marsh",
+        sourceUrl:
+          "https://sketchfab.com/3d-models/triceratops-horridus-marsh-e9c507f179ed4455aac3b208c9e6c973",
+        license: "CC0-1.0",
+        licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
+        modifications: ["placed on the ground", "textures resized and re-encoded", "geometry compressed"],
+      },
+    },
+    a11y: {
+      modelDescription:
+        "3D model of Triceratops horridus standing on four legs, head forward, with two long brow horns, a short nose horn and a wide frill.",
+    },
   },
   review: { status: "published", reviewedOn: "2026-10-16" },
 };

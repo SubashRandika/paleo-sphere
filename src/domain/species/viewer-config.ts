@@ -14,7 +14,7 @@ export type ViewerConfig = {
   hotspots: SpeciesPresentation["hotspots"];
   animation?: SpeciesPresentation["animation"];
   habitatId?: string;
-  fossil?: { src: string; label: string; isCast: boolean };
+  fossil?: Pick<NonNullable<SpeciesPresentation["fossil"]>, "model" | "label" | "isCast" | "camera">;
   modelDescription: string;
 };
 
@@ -31,7 +31,14 @@ export function toViewerConfig(species: Species): ViewerConfig | undefined {
     hotspots: p.hotspots,
     ...(p.animation && { animation: p.animation }),
     ...(p.habitatId && { habitatId: p.habitatId }),
-    ...(p.fossil && { fossil: { src: p.fossil.src, label: p.fossil.label, isCast: p.fossil.isCast } }),
+    ...(p.fossil && {
+      fossil: {
+        model: p.fossil.model,
+        label: p.fossil.label,
+        isCast: p.fossil.isCast,
+        camera: p.fossil.camera,
+      },
+    }),
     modelDescription: p.a11y.modelDescription,
   };
 }

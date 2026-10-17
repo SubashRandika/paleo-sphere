@@ -37,6 +37,7 @@ beforeEach(() => {
     mode: "studio",
     hotspot: null,
     playing: false,
+    fossilView: null,
   });
 });
 
@@ -161,5 +162,34 @@ describe("viewer store animation", () => {
     useViewerStore.setState({ playing: true });
     useViewerStore.getState().attach(fakeController(), camera);
     expect(useViewerStore.getState().playing).toBe(false);
+  });
+});
+
+describe("viewer store fossil mode", () => {
+  const fossilView = {
+    position: [4, 3, 4] as [number, number, number],
+    target: [0, 0.6, 0] as [number, number, number],
+  };
+
+  it("is unavailable for a species without a fossil scan", () => {
+    useViewerStore.getState().attach(fakeController(), camera);
+    useViewerStore.getState().setMode("fossil");
+    expect(useViewerStore.getState().mode).toBe("studio");
+  });
+
+  it("frames the scan, resets to the scan's view, and returns to the reconstruction's view", () => {
+    const c = fakeController();
+    useViewerStore.getState().attach(c, camera, [], fossilView);
+    useViewerStore.getState().setPlaying(true);
+
+    useViewerStore.getState().setMode("fossil");
+    expect(useViewerStore.getState()).toMatchObject({ mode: "fossil", playing: false });
+    expect(c.setLookAt).toHaveBeenLastCalledWith(4, 3, 4, 0, 0.6, 0, true);
+
+    useViewerStore.getState().reset();
+    expect(c.setLookAt).toHaveBeenLastCalledWith(4, 3, 4, 0, 0.6, 0, true);
+
+    useViewerStore.getState().setMode("studio");
+    expect(c.setLookAt).toHaveBeenLastCalledWith(10, 4, 10, 0, 2, 0, true);
   });
 });

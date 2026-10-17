@@ -358,5 +358,56 @@ export const allosaurusFragilis: SpeciesInput = {
       },
     ],
   },
+  presentation: {
+    model: {
+      high: "/models/allosaurus-fragilis/allosaurus-fragilis-high.glb",
+      mobile: "/models/allosaurus-fragilis/allosaurus-fragilis-mobile.glb",
+      poster: "/models/allosaurus-fragilis/allosaurus-fragilis-poster.webp",
+    },
+    attribution: {
+      creator: "Anees Animates",
+      creatorUrl: "https://sketchfab.com/AneesAnimates",
+      title: "Animated Allosaurus (Free)",
+      sourceUrl: "https://sketchfab.com/3d-models/animated-allosaurus-free-3dfc4629ce3f48f183305ddb3b2ad656",
+      license: "CC-BY-NC-4.0",
+      licenseUrl: "https://creativecommons.org/licenses/by-nc/4.0/",
+      modifications: [
+        "posed from the first frame of its walk animation; rig and animation removed",
+        "scaled to a length of 9.7 m",
+        "material converted from specular-glossiness to metallic-roughness",
+        "materials set to non-metallic (skin and horn are not metal)",
+        "textures resized and re-encoded",
+        "geometry compressed",
+      ],
+    },
+    appearanceNotes: [
+      {
+        text: "Three-fingered hands and small horns above the eyes, as in the fossils.",
+        level: 1,
+        citationIds: ["nhm-allosaurus"],
+      },
+      {
+        text: "Skin colour, pattern and the lip-like tissue over the teeth are the model artist's interpretation, not based on fossil evidence.",
+        level: 4,
+        citationIds: [],
+      },
+    ],
+    // Model is 9.7 m long (z −4.85 → +4.85, head toward +z), 3.5 m tall, in mid-stride.
+    camera: {
+      default: { position: [10.2, 3.8, 9], target: [0, 2.2, 0.4] },
+      presets: [
+        { id: "side", label: "Side", position: [14.5, 2.3, 0], target: [0, 2.2, 0] },
+        { id: "front", label: "Front", position: [2, 3.2, 12.5], target: [0, 2.3, 1.8] },
+        { id: "head", label: "Head", position: [4, 3.4, 8.4], target: [0, 2.8, 4] },
+      ],
+      limits: { minDistance: 2, maxDistance: 38, maxPolarAngle: 1.5 },
+    },
+    modes: ["studio"],
+    hotspots: [],
+    a11y: {
+      modelDescription:
+        "3D model of Allosaurus fragilis walking on two legs, caught mid-stride, with its body and tail held level.",
+    },
+  },
   review: { status: "published", reviewedOn: "2026-10-16" },
 };
