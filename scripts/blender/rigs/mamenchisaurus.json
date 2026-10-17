@@ -1,0 +1,177 @@
+{
+  "comment": "Skeleton for mamenchisaurus.glb (glTF axes, +z head, metres). Joints read off profile_render.py side/top views, 2026-10-17. The posed body curves, so its centre line is x \u2248 0.9 (mirrorX) and the neck and tail chains follow the curve in x.",
+  "weld": 0.0005,
+  "bones": [
+    {
+      "name": "root",
+      "head": [0.9, 0, -1.0],
+      "tail": [0.9, 0, -0.19999999999999996],
+      "deform": false
+    },
+    {
+      "name": "pelvis",
+      "head": [0.9, 3.3, -1.0],
+      "tail": [0.95, 3.1, -1.9],
+      "parent": "root"
+    },
+    {
+      "name": "spine1",
+      "head": [0.9, 3.3, -1.0],
+      "tail": [0.9, 3.35, 0.0],
+      "parent": "pelvis"
+    },
+    {
+      "name": "spine2",
+      "head": [0.9, 3.35, 0.0],
+      "tail": [0.88, 3.3, 1.0],
+      "parent": "spine1",
+      "connect": true
+    },
+    {
+      "name": "spine3",
+      "head": [0.88, 3.3, 1.0],
+      "tail": [0.8, 3.0, 2.0],
+      "parent": "spine2",
+      "connect": true
+    },
+    {
+      "name": "neck1",
+      "head": [0.8, 3.0, 2.0],
+      "tail": [0.62, 2.75, 3.0],
+      "parent": "spine3",
+      "connect": true
+    },
+    {
+      "name": "neck2",
+      "head": [0.62, 2.75, 3.0],
+      "tail": [0.55, 2.9, 4.2],
+      "parent": "neck1",
+      "connect": true
+    },
+    {
+      "name": "neck3",
+      "head": [0.55, 2.9, 4.2],
+      "tail": [0.4, 3.2, 5.4],
+      "parent": "neck2",
+      "connect": true
+    },
+    {
+      "name": "neck4",
+      "head": [0.4, 3.2, 5.4],
+      "tail": [0.05, 3.55, 6.5],
+      "parent": "neck3",
+      "connect": true
+    },
+    {
+      "name": "neck5",
+      "head": [0.05, 3.55, 6.5],
+      "tail": [-0.6, 3.75, 8.1],
+      "parent": "neck4",
+      "connect": true
+    },
+    {
+      "name": "head",
+      "head": [-0.6, 3.75, 8.1],
+      "tail": [-1.15, 3.3, 8.85],
+      "parent": "neck5",
+      "connect": true
+    },
+    {
+      "name": "tail1",
+      "head": [0.95, 3.1, -1.9],
+      "tail": [1.0, 2.6, -3.2],
+      "parent": "pelvis",
+      "connect": true
+    },
+    {
+      "name": "tail2",
+      "head": [1.0, 2.6, -3.2],
+      "tail": [1.02, 2.1, -4.4],
+      "parent": "tail1",
+      "connect": true
+    },
+    {
+      "name": "tail3",
+      "head": [1.02, 2.1, -4.4],
+      "tail": [1.05, 1.6, -5.6],
+      "parent": "tail2",
+      "connect": true
+    },
+    {
+      "name": "tail4",
+      "head": [1.05, 1.6, -5.6],
+      "tail": [0.95, 1.25, -6.8],
+      "parent": "tail3",
+      "connect": true
+    },
+    {
+      "name": "tail5",
+      "head": [0.95, 1.25, -6.8],
+      "tail": [0.45, 1.1, -7.8],
+      "parent": "tail4",
+      "connect": true
+    },
+    {
+      "name": "tail6",
+      "head": [0.45, 1.1, -7.8],
+      "tail": [-0.25, 1.12, -8.5],
+      "parent": "tail5",
+      "connect": true
+    },
+    {
+      "name": "tail7",
+      "head": [-0.25, 1.12, -8.5],
+      "tail": [-1.0, 1.25, -8.85],
+      "parent": "tail6",
+      "connect": true
+    },
+    {
+      "name": "tail8",
+      "head": [-1.0, 1.25, -8.85],
+      "tail": [-2.0, 1.5, -9.15],
+      "parent": "tail7",
+      "connect": true
+    },
+    {
+      "name": "thigh.R",
+      "head": [1.55, 2.6, -1.05],
+      "tail": [1.62, 1.35, -0.85],
+      "parent": "pelvis"
+    },
+    {
+      "name": "shin.R",
+      "head": [1.62, 1.35, -0.85],
+      "tail": [1.62, 0.35, -1.05],
+      "parent": "thigh.R",
+      "connect": true
+    },
+    {
+      "name": "foot.R",
+      "head": [1.62, 0.35, -1.05],
+      "tail": [1.62, 0.05, -0.85],
+      "parent": "shin.R",
+      "connect": true
+    },
+    {
+      "name": "upperarm.R",
+      "head": [1.55, 2.6, 1.4],
+      "tail": [1.63, 1.4, 1.4],
+      "parent": "spine3"
+    },
+    {
+      "name": "forearm.R",
+      "head": [1.63, 1.4, 1.4],
+      "tail": [1.63, 0.35, 1.45],
+      "parent": "upperarm.R",
+      "connect": true
+    },
+    {
+      "name": "hand.R",
+      "head": [1.63, 0.35, 1.45],
+      "tail": [1.65, 0.05, 1.6],
+      "parent": "forearm.R",
+      "connect": true
+    }
+  ],
+  "mirrorX": 0.9
+}

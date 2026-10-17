@@ -5,6 +5,9 @@ const PORT = 3100;
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
+  // Each worker renders WebGL on the CPU (SwiftShader); with animated, skinned models, eight at once
+  // starve each other and viewer tests time out at random. Four keep the suite reliable.
+  workers: 4,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? "github" : "list",

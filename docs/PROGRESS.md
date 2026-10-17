@@ -6,8 +6,8 @@
 - **Phase:** 4 — Realism and asset pipeline (implemented 2026-10-16)
 - **Phase:** 5 — Scientific species content (approved 2026-10-16; records published)
 - **Phase:** 6 — Complete species explorer (in progress)
-- **Task:** 6.5 done (2026-10-17): all five species have models, and *Triceratops* and *T. rex* have fossil comparison mode. Task 3.6 (real-device check) still open
-- **Next recommended action:** Review the new models in the browser (`docs/lookdev/species-models.md`), then approve Phase 6 or list changes.
+- **Task:** All five species have an idle animation and anatomy markers (2026-10-17); *Triceratops* and *T. rex* have fossil comparison. Task 3.6 (real-device check) still open
+- **Next recommended action:** Review the animations and markers in the browser (`docs/lookdev/species-models.md`), then approve Phase 6 or list changes.
 
 ## Phase checklist
 
@@ -51,6 +51,7 @@
   - [x] 6.2 Species browser on the home page (search; period, diet and group filters; oldest first) and the strata rail / phone strip on species pages
   - [x] 6.3 Structured info panel with a length comparison and jump links
   - [x] 6.4 Anatomy mode: 5 *T. rex* hotspots (Blender ray-cast positions, cited notes), mode switch, DOM markers, note card
+  - [x] Idle animation and anatomy markers for *Triceratops*, *Stegosaurus*, *Allosaurus* and *Mamenchisaurus* (your request): own rigs, 12 s idles, 4 cited markers each (`lookdev/species-models.md`). Tests: 121 unit/component, 54 e2e (Playwright limited to 4 workers: CPU WebGL)
   - [x] 6.5 Models for *Triceratops*, *Stegosaurus*, *Mamenchisaurus*, *Allosaurus*; fossil comparison mode with the Smithsonian *Triceratops* mount (cast) and a *T. rex* skull cast (`lookdev/species-models.md`, `architecture.md` §18). Tests: 121 unit/component, 54 e2e, 56/56 citations
   - [x] 6.6 `docs/adding-a-species.md`; tests: 107 unit/component, 42 e2e (desktop + Pixel 7)
   - [x] Rig test for the *T. rex* idle animation (your request): **passed** for moderate motion, see `lookdev/tyrannosaurus-rex-rig.md`
@@ -126,7 +127,7 @@
 - Free-only assets: game-ready sculpts (~10k–100k faces), not film-grade. The *Triceratops* is the weakest (11k triangles, soft silhouette up close); the *Stegosaurus* texture is very dark.
 - Three CC BY-NC models (*Triceratops*, *Allosaurus*, *Mamenchisaurus*) must be replaced if the project ever becomes commercial.
 - Fossil scans carry no size statement (undocumented scan units; the skull's original specimen is not named). The *T. rex* skull is 191k triangles even on mobile; reduce further if phones struggle (Task 3.6).
-- New species have no anatomy hotspots yet (each needs cited notes).
+- The idle rigs suit small, slow movements only (as for the *T. rex*); no walking. Weights were checked with renders, not painted by hand.
 - WebKit (Safari) not yet in the Playwright matrix; add before Phase 8.
 - Real-GPU frame-rate data from one laptop only (AMD Radeon 860M, Chrome); no phone measurements yet (Task 3.6).
 - Web fonts total 331 KB; optimise in Phase 8 (`perf.md`).

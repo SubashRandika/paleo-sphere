@@ -6,6 +6,11 @@ Keyframe a looping idle clip onto a rigged .blend from a motion spec.
     --spec scripts/blender/rigs/tyrannosaurus-rex-idle.json \
     --output assets-src/trex/work/tyrannosaurus-rex-animated.blend
 
+Rotations are bone-local XYZ degrees by default. With "axes": "armature" in the spec, yaw turns about
+the body's vertical axis and pitch about its side-to-side axis, whatever way each bone points (a head
+angled steeply down would otherwise roll as it turns); same signs: +yaw toward the animal's left,
+−pitch raises. The jaw block is optional.
+
 Every frame is keyed from closed-form curves (eased keys, breath envelope, travelling tail wave), so
 the first and last frames match and the clip loops without a seam. The glTF exporter samples the
 action per frame anyway; keying densely here means Blender and three.js play exactly the same motion.
@@ -19,6 +24,7 @@ import os
 import sys
 
 import bpy
+from mathutils import Matrix
 
 
 def parse_args():
@@ -80,8 +86,9 @@ def pose_at(spec, t):
         r[0] += pitch * w
         r[2] += yaw * w
 
-    (jaw,) = sample_keys(spec["jaw"]["keys"], t)
-    rot(spec["jaw"]["bone"])[0] += jaw
+    if "jaw" in spec:
+        (jaw,) = sample_keys(spec["jaw"]["keys"], t)
+        rot(spec["jaw"]["bone"])[0] += jaw
 
     tail = spec["tail"]
     phase = 2 * math.pi * t / spec["duration"]
@@ -108,17 +115,31 @@ def main():
 
     arm.animation_data_clear()
     animated = sorted({bone for f in range(last + 1) for bone in pose_at(spec, f / fps)})
+    armature_axes = spec.get("axes", "local") == "armature"
     for pb in arm.pose.bones:
-        pb.rotation_mode = "XYZ"
+        pb.rotation_mode = "QUATERNION" if armature_axes else "XYZ"
+
+    def local_rotation(pb, rot):
+        # Pitch about the armature's X (side to side), then yaw about its Z (up), re-expressed in the
+        # bone's rest frame: R_local = M⁻¹ · R_armature · M.
+        m = pb.bone.matrix_local.to_3x3()
+        world = Matrix.Rotation(math.radians(rot[2]), 3, "Z") @ Matrix.Rotation(math.radians(rot[0]), 3, "X")
+        return (m.inverted() @ world @ m).to_quaternion()
+
     for f in range(last + 1):
         # The last frame is sampled at t = duration, which equals t = 0: the loop closes exactly.
         pose = pose_at(spec, (f % last) / fps)
         for bone in animated:
             pb = arm.pose.bones[bone]
             t = pose.get(bone, {})
-            pb.rotation_euler = [math.radians(a) for a in t.get("rot", (0, 0, 0))]
+            rot = t.get("rot", (0, 0, 0))
+            if armature_axes:
+                pb.rotation_quaternion = local_rotation(pb, rot)
+                pb.keyframe_insert("rotation_quaternion", frame=f)
+            else:
+                pb.rotation_euler = [math.radians(a) for a in rot]
+                pb.keyframe_insert("rotation_euler", frame=f)
             pb.scale = t.get("scale", (1, 1, 1))
-            pb.keyframe_insert("rotation_euler", frame=f)
             if "scale" in t:
                 pb.keyframe_insert("scale", frame=f)
 

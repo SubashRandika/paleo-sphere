@@ -1,0 +1,57 @@
+{
+  "comment": "Idle loop for the Mamenchisaurus rig (scripts/blender/animate_idle.py). Seconds and degrees about the body's axes (axes: armature): +yaw toward the animal's left, -pitch raises. The look is spread along five neck bones so the long neck bends as a curve.",
+  "name": "Idle",
+  "fps": 30,
+  "duration": 12,
+  "axes": "armature",
+  "breaths": [
+    {
+      "start": 0.2,
+      "inhale": 2.0,
+      "hold": 0.3,
+      "exhale": 2.9
+    },
+    {
+      "start": 6.2,
+      "inhale": 2.0,
+      "hold": 0.3,
+      "exhale": 2.9
+    }
+  ],
+  "breathing": {
+    "comment": "Rib cage widens and deepens on the inhale; spine3 takes the inverse scale so the neck, head and front legs keep their size and place.",
+    "bone": "spine2",
+    "compensate": "spine3",
+    "scale": [0.035, 0, 0.035],
+    "headPitch": -0.8
+  },
+  "look": {
+    "comment": "Total neck + head turn, shared between bones by weight. Keys are [time, yaw, pitch], eased between. Spine bones are left out so the front feet stay planted.",
+    "weights": {
+      "neck1": 0.15,
+      "neck2": 0.17,
+      "neck3": 0.2,
+      "neck4": 0.2,
+      "neck5": 0.15,
+      "head": 0.13
+    },
+    "keys": [
+      [0, 0, 0],
+      [1.2, 0, 0],
+      [3.2, 12, -3],
+      [5.2, 12, -3],
+      [7.0, 0, 0],
+      [8.0, 0, 0],
+      [9.6, -8, 2],
+      [10.9, -8, 2],
+      [12, 0, 0]
+    ]
+  },
+  "tail": {
+    "comment": "A slow side-to-side wave that travels toward the tip, with a small lift twice per loop.",
+    "bones": ["tail1", "tail2", "tail3", "tail4", "tail5", "tail6", "tail7", "tail8"],
+    "yaw": [0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.0],
+    "pitch": 0.4,
+    "lag": 0.35
+  }
+}

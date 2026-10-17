@@ -201,7 +201,44 @@ export const triceratopsHorridus: SpeciesInput = {
         citationIds: ["scannella-horner-2010"],
       },
     ],
-    hotspotNotes: [],
+    hotspotNotes: [
+      {
+        hotspotId: "horns",
+        title: "Three horns",
+        body: {
+          text: "Two large horns above the eyes and a smaller horn on the nose.",
+          level: 1,
+          citationIds: ["farke-2009"],
+        },
+      },
+      {
+        hotspotId: "frill",
+        title: "A giant skull",
+        body: {
+          text: "The frill could reach nearly a metre across, making the skull one of the largest of any land animal.",
+          level: 1,
+          citationIds: ["nhm-triceratops"],
+        },
+      },
+      {
+        hotspotId: "beak",
+        title: "Beak and cheek teeth",
+        body: {
+          text: "A sharp beak snipped vegetation, and rows of cheek teeth formed shearing surfaces for slicing tough, bulky plants.",
+          level: 2,
+          citationIds: ["nhm-triceratops", "erickson-2015"],
+        },
+      },
+      {
+        hotspotId: "skin",
+        title: "Pebbly scales",
+        body: {
+          text: "Skin impressions show large, pebble-like scales.",
+          level: 1,
+          citationIds: ["nhm-triceratops"],
+        },
+      },
+    ],
     citations: [
       {
         id: "gbif-usnm-pal-500000",
@@ -357,6 +394,7 @@ export const triceratopsHorridus: SpeciesInput = {
       modifications: [
         "rig and animation removed, standing pose kept",
         "scaled to a length of 9 m",
+        "rigged with a skeleton and given a looping idle animation",
         "materials set to non-metallic (skin and horn are not metal)",
         "textures resized and re-encoded",
         "geometry compressed",
@@ -373,6 +411,11 @@ export const triceratopsHorridus: SpeciesInput = {
         level: 4,
         citationIds: [],
       },
+      {
+        text: "The idle animation is an artistic interpretation. The movements are deliberately small and slow; their timing is not based on fossil evidence.",
+        level: 4,
+        citationIds: [],
+      },
     ],
     // Model is 9 m long (z −4.5 → +4.5, head toward +z), 4.0 m tall to the top of the frill.
     camera: {
@@ -384,8 +427,36 @@ export const triceratopsHorridus: SpeciesInput = {
       ],
       limits: { minDistance: 2, maxDistance: 36, maxPolarAngle: 1.5 },
     },
-    modes: ["studio", "fossil"],
-    hotspots: [],
+    modes: ["studio", "anatomy", "fossil"],
+    // Clip from scripts/blender/animate_idle.py (spec: scripts/blender/rigs/triceratops-horridus-idle.json).
+    animation: { clip: "Idle" },
+    // Surface points from scripts/blender/surface_points.py (`marker`: 4 cm off the surface), 2026-10-17.
+    hotspots: [
+      {
+        id: "horns",
+        label: "Horns",
+        position: [0.73, 2.37, 3.36],
+        view: { position: [3.59, 2.95, 4.76], target: [0.72, 2.4, 3.35] },
+      },
+      {
+        id: "frill",
+        label: "Frill",
+        position: [0.81, 3.2, 2.43],
+        view: { position: [3.5, 3.82, 4.77], target: [0.79, 3.2, 2.4] },
+      },
+      {
+        id: "beak",
+        label: "Beak and cheek teeth",
+        position: [0.41, 1.06, 3.52],
+        view: { position: [2.93, 1.56, 5.08], target: [0.38, 1.05, 3.5] },
+      },
+      {
+        id: "skin",
+        label: "Scaly skin",
+        position: [1.13, 2.3, -0.29],
+        view: { position: [4.56, 2.92, 0.69], target: [1.09, 2.3, -0.3] },
+      },
+    ],
     fossil: {
       model: {
         high: "/models/fossil-triceratops/fossil-triceratops-high.glb",

@@ -39,23 +39,32 @@ test("home page lists all five species, each with its model", async ({ page }) =
   await expect(page.getByText("3D model in preparation")).toHaveCount(0);
 });
 
-for (const slug of [
-  "triceratops-horridus",
-  "stegosaurus-stenops",
-  "allosaurus-fragilis",
-  "mamenchisaurus",
-  "tyrannosaurus-rex",
-]) {
-  test(`${slug}: the model loads without errors`, async ({ page }) => {
+// Number of anatomy markers per species (content.hotspotNotes).
+const MARKERS = {
+  "triceratops-horridus": 4,
+  "stegosaurus-stenops": 4,
+  "allosaurus-fragilis": 4,
+  mamenchisaurus: 4,
+  "tyrannosaurus-rex": 5,
+};
+
+for (const [slug, markers] of Object.entries(MARKERS)) {
+  test(`${slug}: the model loads, offers its idle animation and shows every anatomy marker`, async ({
+    page,
+  }) => {
     const problems: string[] = [];
     page.on("pageerror", (error) => problems.push(String(error)));
     page.on("console", (message) => {
       if (/GL_INVALID|WebGL: |THREE\.WebGLProgram/.test(message.text())) problems.push(message.text());
     });
     await page.goto(`/species/${slug}`);
-    await expect(page.locator("figure[data-viewer-state]")).toHaveAttribute("data-viewer-state", "ready", {
-      timeout: 60_000,
-    });
+    const stage = page.locator("figure[data-viewer-state]");
+    await expect(stage).toHaveAttribute("data-viewer-state", "ready", { timeout: 60_000 });
+    await expect(page.getByRole("button", { name: "Play animation" })).toBeEnabled();
+
+    await page.getByRole("button", { name: "Anatomy" }).click();
+    // Markers hidden behind the body are not shown, so all of them must face the default view.
+    await expect(page.getByRole("button", { name: /^\d\. / })).toHaveCount(markers);
     expect(problems).toEqual([]);
   });
 }

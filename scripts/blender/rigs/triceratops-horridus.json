@@ -1,0 +1,125 @@
+{
+  "comment": "Skeleton for triceratops-horridus.glb (glTF axes, +z head, metres). Joints read off profile_render.py side/top views, 2026-10-17. Head bone runs from the neck joint down to the beak; the frill and horns follow it.",
+  "weld": 0.0005,
+  "bones": [
+    {
+      "name": "root",
+      "head": [0, 0, -1.1],
+      "tail": [0, 0, -0.30000000000000004],
+      "deform": false
+    },
+    {
+      "name": "pelvis",
+      "head": [0, 3.0, -1.1],
+      "tail": [0, 2.85, -1.8],
+      "parent": "root"
+    },
+    {
+      "name": "spine1",
+      "head": [0, 3.0, -1.1],
+      "tail": [0, 3.05, -0.1],
+      "parent": "pelvis"
+    },
+    {
+      "name": "spine2",
+      "head": [0, 3.05, -0.1],
+      "tail": [0, 3.0, 0.8],
+      "parent": "spine1",
+      "connect": true
+    },
+    {
+      "name": "spine3",
+      "head": [0, 3.0, 0.8],
+      "tail": [0, 2.75, 1.5],
+      "parent": "spine2",
+      "connect": true
+    },
+    {
+      "name": "neck1",
+      "head": [0, 2.75, 1.5],
+      "tail": [0, 2.25, 2.25],
+      "parent": "spine3",
+      "connect": true
+    },
+    {
+      "name": "head",
+      "head": [0, 2.25, 2.25],
+      "tail": [0, 1.3, 3.6],
+      "parent": "neck1",
+      "connect": true
+    },
+    {
+      "name": "tail1",
+      "head": [0, 2.85, -1.8],
+      "tail": [0, 2.45, -2.5],
+      "parent": "pelvis",
+      "connect": true
+    },
+    {
+      "name": "tail2",
+      "head": [0, 2.45, -2.5],
+      "tail": [0, 2.0, -3.1],
+      "parent": "tail1",
+      "connect": true
+    },
+    {
+      "name": "tail3",
+      "head": [0, 2.0, -3.1],
+      "tail": [-0.08, 1.7, -3.7],
+      "parent": "tail2",
+      "connect": true
+    },
+    {
+      "name": "tail4",
+      "head": [-0.08, 1.7, -3.7],
+      "tail": [-0.45, 1.5, -4.5],
+      "parent": "tail3",
+      "connect": true
+    },
+    {
+      "name": "thigh.R",
+      "head": [0.75, 2.2, -1.1],
+      "tail": [0.9, 1.2, -1.0],
+      "parent": "pelvis"
+    },
+    {
+      "name": "shin.R",
+      "head": [0.9, 1.2, -1.0],
+      "tail": [0.92, 0.45, -1.2],
+      "parent": "thigh.R",
+      "connect": true
+    },
+    {
+      "name": "foot.R",
+      "head": [0.92, 0.45, -1.2],
+      "tail": [0.95, 0.05, -0.9],
+      "parent": "shin.R",
+      "connect": true
+    },
+    {
+      "name": "upperarm.R",
+      "head": [0.75, 2.1, 1.2],
+      "tail": [0.9, 1.1, 1.25],
+      "parent": "spine3"
+    },
+    {
+      "name": "forearm.R",
+      "head": [0.9, 1.1, 1.25],
+      "tail": [0.92, 0.4, 1.3],
+      "parent": "upperarm.R",
+      "connect": true
+    },
+    {
+      "name": "hand.R",
+      "head": [0.92, 0.4, 1.3],
+      "tail": [0.95, 0.05, 1.5],
+      "parent": "forearm.R",
+      "connect": true
+    }
+  ],
+  "rigid": {
+    "Object_19": "head",
+    "Object_21": "head",
+    "Object_9": "head"
+  }
+}

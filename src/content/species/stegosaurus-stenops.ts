@@ -193,7 +193,36 @@ export const stegosaurusStenops: SpeciesInput = {
         citationIds: ["maidment-2015", "nhm-stegosaurus"],
       },
     ],
-    hotspotNotes: [],
+    hotspotNotes: [
+      {
+        hotspotId: "plates",
+        title: "Plates set in the skin",
+        body: {
+          text: "The plates were embedded in the skin rather than attached to the skeleton, which is why they are usually found scattered.",
+          level: 1,
+          citationIds: ["nhm-stegosaurus"],
+        },
+      },
+      {
+        hotspotId: "spikes",
+        title: "Tail spikes",
+        body: { text: "The tail ends in paired spikes.", level: 1, citationIds: ["hayashi-2011"] },
+      },
+      {
+        hotspotId: "head",
+        title: "A small head",
+        body: {
+          text: "Its head was small for its body, with a brain about the size of a plum.",
+          level: 1,
+          citationIds: ["nhm-stegosaurus"],
+        },
+      },
+      {
+        hotspotId: "jaw",
+        title: "No front teeth",
+        body: { text: "The front of the lower jaw had no teeth.", level: 1, citationIds: ["maidment-2015"] },
+      },
+    ],
     citations: [
       {
         id: "nhm-stegosaurus",
@@ -348,6 +377,7 @@ export const stegosaurusStenops: SpeciesInput = {
       licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
       modifications: [
         "scaled to a length of 9 m",
+        "rigged with a skeleton and given a looping idle animation",
         "materials set to non-metallic (skin and horn are not metal)",
         "textures resized and re-encoded",
         "geometry compressed",
@@ -369,6 +399,11 @@ export const stegosaurusStenops: SpeciesInput = {
         level: 4,
         citationIds: [],
       },
+      {
+        text: "The idle animation is an artistic interpretation. The movements are deliberately small and slow; their timing is not based on fossil evidence.",
+        level: 4,
+        citationIds: [],
+      },
     ],
     // Model is 9 m long (z −4.5 → +4.5, head toward +z), 3.9 m tall to the top of the plates.
     camera: {
@@ -380,8 +415,36 @@ export const stegosaurusStenops: SpeciesInput = {
       ],
       limits: { minDistance: 2, maxDistance: 36, maxPolarAngle: 1.5 },
     },
-    modes: ["studio"],
-    hotspots: [],
+    modes: ["studio", "anatomy"],
+    // Clip from scripts/blender/animate_idle.py (spec: scripts/blender/rigs/stegosaurus-stenops-idle.json).
+    animation: { clip: "Idle" },
+    // Surface points from scripts/blender/surface_points.py (`marker`: 4 cm off the surface), 2026-10-17.
+    hotspots: [
+      {
+        id: "plates",
+        label: "Plates",
+        position: [0.29, 3.31, 0.06],
+        view: { position: [6.6, 4.2, 2.2], target: [0.2, 2.9, 0] },
+      },
+      {
+        id: "spikes",
+        label: "Tail spikes",
+        position: [0.09, 2.01, -3.9],
+        view: { position: [3.35, 2.56, -3.02], target: [0.07, 1.98, -3.9] },
+      },
+      {
+        id: "head",
+        label: "Small head",
+        position: [0.21, 1.55, 4.01],
+        view: { position: [3.02, 2.06, 4.95], target: [0.17, 1.55, 4.0] },
+      },
+      {
+        id: "jaw",
+        label: "Toothless jaw tip",
+        position: [0.08, 1.28, 4.31],
+        view: { position: [2.69, 1.78, 5.23], target: [0.05, 1.3, 4.3] },
+      },
+    ],
     a11y: {
       modelDescription:
         "3D model of Stegosaurus stenops standing on four legs, head low, with two rows of tall plates along its back and spikes at the end of its tail.",

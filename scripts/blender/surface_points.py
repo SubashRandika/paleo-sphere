@@ -8,6 +8,11 @@ Usage (via scripts/blender/run.mjs or directly):
 
 Each --ray is name:origin:direction in glTF axes (Y up, metres, the same coordinates as the
 web viewer). Prints the first surface hit per ray as JSON, in glTF axes, plus the model bounds.
+
+Use `marker` (not `point`) as a hotspot position: it sits --lift metres (default 4 cm) off the surface
+along its normal. A marker exactly on the surface hides behind it at random, because the viewer's
+occlusion test then compares two equal distances, and the web build's compressed vertex positions
+move the surface by millimetres.
 """
 
 import argparse
@@ -32,6 +37,7 @@ def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--input", required=True)
     p.add_argument("--ray", action="append", default=[], help="name:ox,oy,oz:dx,dy,dz")
+    p.add_argument("--lift", type=float, default=0.04)
     return p.parse_args(argv)
 
 
@@ -59,7 +65,12 @@ def main():
         d = gltf_to_blender([float(x) for x in direction.split(",")]).normalized()
         found, location, normal, _, obj, _ = scene.ray_cast(depsgraph, o, d)
         hits[name] = (
-            {"point": blender_to_gltf(location), "normal": blender_to_gltf(normal), "object": obj.name}
+            {
+                "point": blender_to_gltf(location),
+                "normal": blender_to_gltf(normal),
+                "marker": blender_to_gltf(location + normal * args.lift),
+                "object": obj.name,
+            }
             if found
             else None
         )

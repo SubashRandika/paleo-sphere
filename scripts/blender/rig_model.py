@@ -42,15 +42,16 @@ def to_blender(v):
     return Vector((v[0], -v[2], v[1]))
 
 
-def expand_mirrors(bones):
+def expand_mirrors(bones, centre=0.0):
+    """`.R` bones are copied to `.L`, mirrored across x = centre (a curved pose can shift the body off x = 0)."""
     out = []
     for b in bones:
         out.append(b)
         if b["name"].endswith(".R"):
             m = dict(b)
             m["name"] = b["name"][:-2] + ".L"
-            m["head"] = [-b["head"][0], b["head"][1], b["head"][2]]
-            m["tail"] = [-b["tail"][0], b["tail"][1], b["tail"][2]]
+            m["head"] = [2 * centre - b["head"][0], b["head"][1], b["head"][2]]
+            m["tail"] = [2 * centre - b["tail"][0], b["tail"][1], b["tail"][2]]
             if b.get("parent", "").endswith(".R"):
                 m["parent"] = b["parent"][:-2] + ".L"
             out.append(m)
@@ -165,7 +166,7 @@ def split_jaw(o, cfg):
 def main():
     args = parse_args()
     spec = json.load(open(args.rig, encoding="utf8"))
-    bones = expand_mirrors(spec["bones"])
+    bones = expand_mirrors(spec["bones"], spec.get("mirrorX", 0.0))
 
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=args.input)

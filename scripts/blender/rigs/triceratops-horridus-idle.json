@@ -1,0 +1,53 @@
+{
+  "comment": "Idle loop for the Triceratops rig (scripts/blender/animate_idle.py). Seconds and degrees about the body's axes (axes: armature): +yaw toward the animal's left, -pitch raises. Small, slow movements; no jaw (the beak is closed).",
+  "name": "Idle",
+  "fps": 30,
+  "duration": 12,
+  "axes": "armature",
+  "breaths": [
+    {
+      "start": 0.2,
+      "inhale": 2.0,
+      "hold": 0.3,
+      "exhale": 2.9
+    },
+    {
+      "start": 6.2,
+      "inhale": 2.0,
+      "hold": 0.3,
+      "exhale": 2.9
+    }
+  ],
+  "breathing": {
+    "comment": "Rib cage widens and deepens on the inhale; spine3 takes the inverse scale so the neck, head and front legs keep their size and place.",
+    "bone": "spine2",
+    "compensate": "spine3",
+    "scale": [0.04, 0, 0.04],
+    "headPitch": -1.0
+  },
+  "look": {
+    "comment": "Total neck + head turn, shared between bones by weight. Keys are [time, yaw, pitch], eased between. Spine bones are left out so the front feet stay planted.",
+    "weights": {
+      "neck1": 0.5,
+      "head": 0.5
+    },
+    "keys": [
+      [0, 0, 0],
+      [1.2, 0, 0],
+      [3.2, 10, -2],
+      [5.2, 10, -2],
+      [7.0, 0, 0],
+      [8.0, 0, 0],
+      [9.6, -6, 1.5],
+      [10.9, -6, 1.5],
+      [12, 0, 0]
+    ]
+  },
+  "tail": {
+    "comment": "A slow side-to-side wave that travels toward the tip, with a small lift twice per loop.",
+    "bones": ["tail1", "tail2", "tail3", "tail4"],
+    "yaw": [1.5, 2.0, 2.5, 3.0],
+    "pitch": 0.4,
+    "lag": 0.35
+  }
+}

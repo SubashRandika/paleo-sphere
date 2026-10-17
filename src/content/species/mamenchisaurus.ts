@@ -163,7 +163,44 @@ export const mamenchisaurus: SpeciesInput = {
         citationIds: ["russell-zheng-1993", "moore-2023"],
       },
     ],
-    hotspotNotes: [],
+    hotspotNotes: [
+      {
+        hotspotId: "head",
+        title: "A head that did not chew",
+        body: {
+          text: "Like other sauropods it had a small, light head that did not chew; plant food was swallowed without being processed in the mouth.",
+          level: 2,
+          citationIds: ["taylor-wedel-2013"],
+        },
+      },
+      {
+        hotspotId: "length",
+        title: "One of the longest necks",
+        body: {
+          text: "Scaling from the bones of _Mamenchisaurus sinocanadorum_ implies a neck more than 14 m long — rivalling the longest-necked sauropods known.",
+          level: 2,
+          citationIds: ["moore-2023"],
+        },
+      },
+      {
+        hotspotId: "vertebrae",
+        title: "Hollow neck bones",
+        body: {
+          text: "CT scans show its neck vertebrae were extensively hollowed by air spaces, as in the largest sauropods, keeping the long neck light.",
+          level: 1,
+          citationIds: ["moore-2023"],
+        },
+      },
+      {
+        hotspotId: "ribs",
+        title: "Long neck ribs",
+        body: {
+          text: "Very long neck ribs, forked at the front end — a feature found almost only in mamenchisaurids.",
+          level: 1,
+          citationIds: ["moore-2023"],
+        },
+      },
+    ],
     citations: [
       {
         id: "nhm-mamenchisaurus",
@@ -287,6 +324,7 @@ export const mamenchisaurus: SpeciesInput = {
       modifications: [
         "posed from a frame of its animation with the neck held about level; rig and animation removed",
         "scaled so its length along the neck, back and tail is 22 m",
+        "rigged with a skeleton and given a looping idle animation",
         "materials set to non-metallic (skin and horn are not metal)",
         "textures resized and re-encoded",
         "geometry compressed",
@@ -303,6 +341,11 @@ export const mamenchisaurus: SpeciesInput = {
         level: 4,
         citationIds: [],
       },
+      {
+        text: "The idle animation is an artistic interpretation. The movements are deliberately small and slow; their timing is not based on fossil evidence.",
+        level: 4,
+        citationIds: [],
+      },
     ],
     // 22 m along the body (scripts/blender/midline_length.py); the curved pose spans 17.7 m (z), 4.0 m tall.
     // Snout at (−1.1, 3.2, 8.9).
@@ -315,8 +358,36 @@ export const mamenchisaurus: SpeciesInput = {
       ],
       limits: { minDistance: 3, maxDistance: 60, maxPolarAngle: 1.5 },
     },
-    modes: ["studio"],
-    hotspots: [],
+    modes: ["studio", "anatomy"],
+    // Clip from scripts/blender/animate_idle.py (spec: scripts/blender/rigs/mamenchisaurus-idle.json).
+    animation: { clip: "Idle" },
+    // Surface points from scripts/blender/surface_points.py (`marker`: 4 cm off the surface), 2026-10-17.
+    hotspots: [
+      {
+        id: "head",
+        label: "Small head",
+        position: [-0.61, 3.44, 8.52],
+        view: { position: [2.55, 4.07, 10.16], target: [-0.64, 3.45, 8.5] },
+      },
+      {
+        id: "length",
+        label: "Neck length",
+        position: [0.4, 3.55, 6.51],
+        view: { position: [5.98, 4.58, 8.6], target: [0.36, 3.55, 6.5] },
+      },
+      {
+        id: "vertebrae",
+        label: "Air-filled neck bones",
+        position: [0.78, 3.17, 4.8],
+        view: { position: [5.62, 4.01, 5.92], target: [0.75, 3.15, 4.8] },
+      },
+      {
+        id: "ribs",
+        label: "Long neck ribs",
+        position: [1.1, 2.37, 3.31],
+        view: { position: [5.77, 3.26, 5.03], target: [1.08, 2.4, 3.3] },
+      },
+    ],
     a11y: {
       modelDescription:
         "3D model of Mamenchisaurus standing on four legs, with a very long neck held about level and a long tail curving to one side.",

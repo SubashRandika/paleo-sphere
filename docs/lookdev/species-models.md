@@ -34,3 +34,27 @@ Lengths come from the cited estimates in each record. The *Mamenchisaurus* pose 
 | Fossils | Labelled "Cast, not original bone" on the stage and in the article | Shown in place of the reconstruction, with their own camera |
 
 Pipeline changes made for this set: `prepare_model.py --pose rest|frame:N` freezes a rigged model's pose and drops the rig and the importer's bone display shapes; `--rotate axis:deg` turns a model lying on the wrong axis. `build-asset.mjs` now sets every material non-metallic (two downloads had metallic = 1 with stray metal pixels) and takes `--simplify <ratio>` for dense scans. `scripts/inspect-source.mjs` and `scripts/blender/survey_source.py` give a first look at a download.
+
+## Rigs, idle animation and anatomy (2026-10-17)
+
+The four reconstructions now have what the *T. rex* has: a 12 s idle loop behind the Play button and anatomy markers with cited notes. Same pipeline as the *T. rex* rig test (`tyrannosaurus-rex-rig.md`): our own skeleton on the prepared (displayed) pose, so the rest pose is exactly what visitors see. The downloads' own rigs were not reused: their rest poses are T-poses or other animation frames, and their bone conventions differ.
+
+![Rest, looking left, looking right — Triceratops, Stegosaurus, Allosaurus, Mamenchisaurus](img/species-idle.jpg)
+
+| Step | Tool | Notes |
+|---|---|---|
+| Bone placement | `scripts/blender/profile_render.py` + `scripts/profile-grid.mjs` | Orthographic side and top silhouettes with a 0.5 m grid in glTF metres; joints read off them into `rigs/<slug>.json`. The *Mamenchisaurus* body centre is x ≈ 0.9 in its curved pose, so its legs mirror about `mirrorX` |
+| Skinning | `rig_model.py` | 23–31 bones. Separate pieces (teeth, eyes, a few internal parts) follow the nearest skin rigidly; the *Allosaurus* teeth and *Triceratops* eyes follow the head |
+| Idle | `animate_idle.py`, `rigs/<slug>-idle.json` | Two breaths, a slow look left and right, a tail wave. New `"axes": "armature"`: turns are about the body's vertical and sideways axes, so a head angled steeply down (*Triceratops*) turns without rolling. Quadrupeds keep the chest out of the look so the front feet stay planted; *Stegosaurus* breathes more gently because its plates ride on the chest |
+| Check | `pose_test.py --frames 0,69,105,300` | Above. No creasing; frill, plates and teeth move with their bones |
+| Web build | `export_glb.py`, `asset:build` | High: *Triceratops* 3.26 MB, *Stegosaurus* 1.86 MB, *Allosaurus* 4.17 MB, *Mamenchisaurus* 3.05 MB (the rig's seam weld removed duplicate vertices) |
+
+Playback on the integrated Radeon 860M (Chrome, 1440 × 900): 60 fps for every species, frame-time median 16.7 ms, p95 ≤ 17.5 ms; 0 fps when paused.
+
+### Anatomy markers
+
+![Anatomy mode](img/species-anatomy.jpg)
+
+Four markers per species. Every note is a claim already in that species' record, word for word, with its evidence level and sources (no new claims): *Triceratops* horns, frill, beak and cheek teeth, skin; *Stegosaurus* plates, tail spikes, small head, toothless jaw tip; *Allosaurus* brow horns, teeth, skull strength, neck muscle; *Mamenchisaurus* small head, neck length, air-filled neck bones, neck ribs.
+
+Markers sit 4 cm off the surface (`surface_points.py` now prints a `marker` position). Exactly on the surface, half of them were hidden at random: the occlusion test compared two equal distances, and the web build's compressed vertex positions move the surface by millimetres.

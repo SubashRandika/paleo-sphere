@@ -185,7 +185,44 @@ export const allosaurusFragilis: SpeciesInput = {
         citationIds: ["hanna-2002"],
       },
     ],
-    hotspotNotes: [],
+    hotspotNotes: [
+      {
+        hotspotId: "horns",
+        title: "Horns above the eyes",
+        body: {
+          text: "The small horns above its eyes may have helped individuals recognise each other, served as display, or shaded the eyes.",
+          level: 3,
+          citationIds: ["nhm-allosaurus"],
+        },
+      },
+      {
+        hotspotId: "teeth",
+        title: "Serrated teeth",
+        body: {
+          text: "Its dagger-like teeth had serrated edges for cutting flesh. Likely prey included _Stegosaurus_ and _Diplodocus_.",
+          level: 2,
+          citationIds: ["nhm-allosaurus"],
+        },
+      },
+      {
+        hotspotId: "skull",
+        title: "Light but strong",
+        body: {
+          text: "Computer stress tests of its skull found a weak muscle-driven bite but a light, open skull of unusually high strength — pointing to a feeding style unlike a bone-crushing bite.",
+          level: 2,
+          citationIds: ["rayfield-2001"],
+        },
+      },
+      {
+        hotspotId: "neck",
+        title: "Pulling, not shaking",
+        body: {
+          text: "A neck muscle attached unusually low on the back of the skull, unlike in nearly all other meat-eating dinosaurs, giving extra power to downward head movements.",
+          level: 2,
+          citationIds: ["snively-2013"],
+        },
+      },
+    ],
     citations: [
       {
         id: "nhm-allosaurus",
@@ -375,6 +412,7 @@ export const allosaurusFragilis: SpeciesInput = {
         "posed from the first frame of its walk animation; rig and animation removed",
         "scaled to a length of 9.7 m",
         "material converted from specular-glossiness to metallic-roughness",
+        "rigged with a skeleton and given a looping idle animation",
         "materials set to non-metallic (skin and horn are not metal)",
         "textures resized and re-encoded",
         "geometry compressed",
@@ -391,6 +429,11 @@ export const allosaurusFragilis: SpeciesInput = {
         level: 4,
         citationIds: [],
       },
+      {
+        text: "The idle animation is an artistic interpretation. The movements are deliberately small and slow; their timing is not based on fossil evidence.",
+        level: 4,
+        citationIds: [],
+      },
     ],
     // Model is 9.7 m long (z −4.85 → +4.85, head toward +z), 3.5 m tall, in mid-stride.
     camera: {
@@ -402,8 +445,36 @@ export const allosaurusFragilis: SpeciesInput = {
       ],
       limits: { minDistance: 2, maxDistance: 38, maxPolarAngle: 1.5 },
     },
-    modes: ["studio"],
-    hotspots: [],
+    modes: ["studio", "anatomy"],
+    // Clip from scripts/blender/animate_idle.py (spec: scripts/blender/rigs/allosaurus-fragilis-idle.json).
+    animation: { clip: "Idle" },
+    // Surface points from scripts/blender/surface_points.py (`marker`: 4 cm off the surface), 2026-10-17.
+    hotspots: [
+      {
+        id: "horns",
+        label: "Brow horns",
+        position: [0.13, 3.45, 4.18],
+        view: { position: [3.3, 4.4, 5.6], target: [0.1, 3.2, 4.3] },
+      },
+      {
+        id: "teeth",
+        label: "Teeth",
+        position: [0.22, 2.75, 4.55],
+        view: { position: [3.15, 3.26, 4.98], target: [0.18, 2.75, 4.55] },
+      },
+      {
+        id: "skull",
+        label: "Light, strong skull",
+        position: [0.27, 2.85, 4.02],
+        view: { position: [3.1, 3.4, 5.42], target: [0.23, 2.85, 4.0] },
+      },
+      {
+        id: "neck",
+        label: "Neck muscles",
+        position: [0.3, 3.01, 3.3],
+        view: { position: [3.64, 3.58, 3.6], target: [0.26, 3.0, 3.3] },
+      },
+    ],
     a11y: {
       modelDescription:
         "3D model of Allosaurus fragilis walking on two legs, caught mid-stride, with its body and tail held level.",

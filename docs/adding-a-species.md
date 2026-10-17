@@ -55,7 +55,7 @@ Only a scan of a real specimen (original bone or a labelled cast), never an illu
 
 ## 5. Anatomy hotspots (optional)
 
-1. **Find surface points** by ray casting against the prepared model (glTF axes, metres):
+1. **Find surface points** by ray casting against the prepared model (glTF axes, metres); use each hit's `marker` (4 cm off the surface) as the position:
    `blender --background --factory-startup --python scripts/blender/surface_points.py -- --input assets-src/<name>/work/<slug>.glb --ray jaws:5,3,5:-1,0,0`
 2. **Add the markers:** add `presentation.hotspots` (`id`, short `label`, `position`, `view`) and `"anatomy"` to `modes`.
 3. **Add the notes:** add one `content.hotspotNotes` entry per hotspot, each a cited claim. The schema rejects a hotspot without a note.
@@ -64,8 +64,8 @@ Only a scan of a real specimen (original bone or a labelled cast), never an illu
 
 Only when the model can be rigged cleanly; run a rig test first (`docs/lookdev/tyrannosaurus-rex-rig.md` shows how).
 
-1. **Rig:** write `scripts/blender/rigs/<slug>.json` (bones in glTF axes), run `scripts/blender/rig_model.py`, and check stress poses with `scripts/blender/pose_test.py`.
-2. **Motion:** write `scripts/blender/rigs/<slug>-idle.json` (breaths, look keys, jaw keys, tail wave), then `scripts/blender/animate_idle.py` → `export_glb.py` → `npm run asset:build`. Check frames with `pose_test.py --frames 0,105,300`.
+1. **Rig:** render gridded silhouettes (`scripts/blender/profile_render.py`, then `node scripts/profile-grid.mjs <dir>`), read the joints off them into `scripts/blender/rigs/<slug>.json` (glTF axes; `mirrorX` if the body is off-centre), run `scripts/blender/rig_model.py`, and check poses with `scripts/blender/pose_test.py`.
+2. **Motion:** write `scripts/blender/rigs/<slug>-idle.json` (breaths, look keys, optional jaw keys, tail wave; `"axes": "armature"` for rigs whose head points steeply up or down), then `scripts/blender/animate_idle.py` → `export_glb.py` → `npm run asset:build`. Check frames with `pose_test.py --frames 0,105,300`.
 3. **Record it:** `presentation.animation` (`clip`), add "rigged … animation" to `attribution.modifications`, and add a level-4 appearance note saying the motion is interpretation.
 
 ## 7. Check
