@@ -2,7 +2,7 @@
 
 An interactive 3D dinosaur encyclopedia: realistic reconstructions you can inspect, with sourced science that separates fossil evidence from artistic interpretation.
 
-**Live demo:** [paleo-sphere.vercel.app](https://paleo-sphere.vercel.app) _(coming soon)_
+**[Live Demo](https://paleo-sphere.vercel.app/)**
 
 Independent, non-commercial educational project. Not affiliated with any museum.
 
