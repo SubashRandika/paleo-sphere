@@ -2,69 +2,74 @@
 
 An interactive 3D dinosaur encyclopedia: realistic reconstructions you can inspect, with sourced science that separates fossil evidence from artistic interpretation.
 
+**Live demo:** [paleo-sphere.vercel.app](https://paleo-sphere.vercel.app) _(coming soon)_
+
 Independent, non-commercial educational project. Not affiliated with any museum.
 
-## Requirements
+![Tyrannosaurus rex in studio mode](docs/screenshots/studio.webp)
 
-- Node.js ≥ 22.12
-- Blender 5.1 (asset preparation, reference renders)
-- KTX-Software 4.4+ (KTX2 texture encoding; `ktx` on PATH, or `KTX_SOFTWARE_BIN`)
+## Features
 
-## Commands
+- **3D viewer:** rotate, zoom, pan, camera presets (side, front, head), fullscreen and an optional idle animation. Works with mouse, touch and keyboard.
+- **Anatomy mode:** numbered hotspots on the model, each with a short note and its evidence level.
+- **Fossil comparison:** switch to a 3D scan of a museum fossil cast (a _T. rex_ skull and a mounted _Triceratops_ skeleton).
+- **Sourced content:** every claim is tagged from 1 (direct fossil evidence) to 4 (artistic interpretation) and cites its source. Size estimates are shown as ranges.
+- **Species explorer:** a geological timeline, search, and filters by period, diet and group.
+- **Accessible and responsive:** all facts are plain HTML, there are dark and light themes, reduced motion is respected, and the layout works on mobile. A poster image replaces the viewer when WebGL isn't available.
 
-| Command                  | What it does                                                                                            |
-| ------------------------ | ------------------------------------------------------------------------------------------------------- |
-| `npm run dev`            | Development server on http://localhost:3000                                                             |
-| `npm run build`          | Production build. **Fails if any species content file is invalid.**                                     |
-| `npm run check`          | Typecheck, lint, format check, unit tests                                                               |
-| `npm test`               | Unit and component tests (Vitest)                                                                       |
-| `npm run e2e`            | End-to-end tests (Playwright, against a production build). First run: `npx playwright install chromium` |
-| `npm run format`         | Format all files (Prettier)                                                                             |
-| `npm run content:verify` | Network check of every species citation against Crossref (DOIs) or the live URL                         |
+**Species:** _Dilophosaurus wetherilli_, _Mamenchisaurus_, _Allosaurus fragilis_, _Brachiosaurus altithorax_, _Brontosaurus excelsus_, _Stegosaurus stenops_, _Triceratops horridus_, _Tyrannosaurus rex_.
 
-## Species content
+## Screenshots
 
-One TypeScript file per species in `src/content/species/`, validated by the Zod schema in `src/domain/species/schema.ts`; an invalid file fails the build. Every claim carries an evidence level (1 fossil evidence … 4 artistic interpretation) and cites sources listed in the same file. Write scientific names as `_Tyrannosaurus rex_` to italicise them.
+| Species explorer                                | Anatomy hotspots                                      |
+| ----------------------------------------------- | ----------------------------------------------------- |
+| ![Species explorer](docs/screenshots/home.webp) | ![Anatomy mode](docs/screenshots/anatomy.webp)        |
+| **Fossil comparison**                           | **Sauropod reconstruction**                           |
+| ![Fossil mode](docs/screenshots/fossil.webp)    | ![Brachiosaurus](docs/screenshots/brachiosaurus.webp) |
 
-Before a record leaves `draft`: research it as described in [docs/research/README.md](docs/research/README.md), record the per-claim checks in `docs/research/<slug>.md`, then run `npm test` and `npm run content:verify`.
+<p align="center"><img src="docs/screenshots/mobile.webp" alt="Mobile layout" width="280"></p>
 
-## 3D asset pipeline
+## Tech stack
 
-Raw downloads go in `assets-src/` (git-ignored). Three steps turn one into web deliverables in `public/models/<slug>/`:
+Next.js (App Router) · React · TypeScript (strict) · Three.js · React Three Fiber · Drei · Tailwind CSS · Zod · Vitest · Playwright. Models are delivered as GLB files with KTX2 textures and Meshopt compression, prepared with headless Blender.
 
-| Command                                                                                          | What it does                                                                                                                                       |
-| ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run asset:prepare -- --input <source.gltf> --output <prepared.glb> --length <m>`            | Headless Blender: flatten, apply transforms, centre, feet on ground, scale to life size (`BLENDER` env overrides the path)                         |
-| `npm run asset:build -- --input <prepared.glb> --slug <slug>`                                    | `-high.glb` (2K) and `-mobile.glb` (1K): KTX2 ETC1S colour/AO/roughness, WebP normal maps, Meshopt geometry; prints sizes and estimated GPU memory |
-| `npm run asset:capture -- --url <species page> --poster public/models/<slug>/<slug>-poster.webp` | Screenshots every camera preset into `.lookdev/` and writes the transparent poster image (needs a running server)                                  |
+## Getting started
 
-## Look development
+Requires Node.js ≥ 22.12.
 
-| Command                                                                                                                                     | What it does                                                                                                                            |
-| ------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `npx next dev -p 3300`, then open `/dev/lookdev?view=head&tone=neutral`                                                                     | Dev-only page (404 in production) that renders a species with render settings from the URL; see `src/features/viewer/lookdev-params.ts` |
-| `node scripts/lookdev.mjs --base http://localhost:3300 [--only textures,shadows]`                                                           | Renders labelled comparison sheets into `docs/lookdev/img/`                                                                             |
-| `blender --background --factory-startup --python scripts/blender/reference_render.py -- --input … --output … --camera x,y,z --target x,y,z` | Cycles ground-truth render from the same camera as the web viewer                                                                       |
+```bash
+npm install
+npm run dev        # http://localhost:3000
+```
 
-Results and decisions: [docs/lookdev/tyrannosaurus-rex.md](docs/lookdev/tyrannosaurus-rex.md).
+| Command                  | What it does                                                                               |
+| ------------------------ | ------------------------------------------------------------------------------------------ |
+| `npm run build`          | Production build. **Fails if any species content file is invalid.**                        |
+| `npm run check`          | Typecheck, lint, format check, unit tests                                                  |
+| `npm run e2e`            | Playwright tests against a production build (first run: `npx playwright install chromium`) |
+| `npm run content:verify` | Checks every species citation against Crossref (DOIs) or the live URL                      |
+
+Preparing new 3D assets also needs Blender 5.1 and KTX-Software 4.4+. See [docs/adding-a-species.md](docs/adding-a-species.md).
 
 ## Project layout
 
 ```
 src/
   app/              routes (server components)
-  content/species/  one TypeScript file per species
-  domain/species/   Zod schema, repository, ViewerConfig — no React, no three (lint-enforced)
+  content/species/  one TypeScript file per species, validated by Zod
+  domain/species/   schema, repository, viewer config (no React, no three)
   features/         viewer, explorer, article
   ui/               design-system primitives
-  proxy.ts          real 404 status for unknown species
 tests/e2e/          Playwright specs
 docs/               PRD, architecture, research, progress log
 ```
 
 ## Documentation
 
-Start with [docs/PROGRESS.md](docs/PROGRESS.md). To add a species, follow [docs/adding-a-species.md](docs/adding-a-species.md). Decisions and their reasons are in [docs/architecture.md](docs/architecture.md).
+- [docs/PROGRESS.md](docs/PROGRESS.md): current status and decisions
+- [docs/architecture.md](docs/architecture.md): architecture and the reasons behind it
+- [docs/adding-a-species.md](docs/adding-a-species.md): content, asset pipeline and rigging
+- [docs/research/](docs/research/README.md): per-species research and source checks
 
 ## Credits
 
